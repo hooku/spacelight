@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+    "settings": {
+        "files.associations": {
+            "app_threadx.h": "c",
+            "spacelight.h": "c",
+            "app_azure_rtos.h": "c",
+            "app_azure_rtos_config.h": "c",
+            "tx_api.h": "c",
+            "tx_port.h": "c",
+            "main.h": "c"
+        }
+    }
+}

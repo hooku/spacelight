@@ -1,0 +1,28 @@
+ AZURE_RTOS/App/app_azure_rtos.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/AZURE_RTOS/App/app_azure_rtos.c b/AZURE_RTOS/App/app_azure_rtos.c
+index 396db4c..ba9a079 100644
+--- a/AZURE_RTOS/App/app_azure_rtos.c
++++ b/AZURE_RTOS/App/app_azure_rtos.c
+@@ -25,7 +25,7 @@
+ 
+ /* Private includes ----------------------------------------------------------*/
+ /* USER CODE BEGIN Includes */
+-
++#include "spacelight.h"
+ /* USER CODE END Includes */
+ 
+ /* Private typedef -----------------------------------------------------------*/
+@@ -93,7 +93,7 @@ VOID tx_application_define(VOID *first_unused_memory)
+     }
+ 
+     /* USER CODE BEGIN  App_ThreadX_Init_Success */
+-
++    spacelight_entry(tx_app_byte_pool);
+     /* USER CODE END  App_ThreadX_Init_Success */
+ 
+   }
+-- 
+2.39.2.windows.1
+

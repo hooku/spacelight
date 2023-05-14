@@ -1,0 +1,33 @@
+{
+    "configurations": [
+        {
+            "name": "IAR",
+            "includePath": [
+                "${default}",
+                "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 8.3\\arm\\inc\\c",
+                "${workspaceFolder}/cubemx/generated/Core/Inc",
+                "${workspaceFolder}/cubemx/generated/AZURE_RTOS/App",
+                "C:\\Users\\pxj\\STM32Cube\\Repository\\STM32Cube_FW_F4_V1.27.1\\Drivers\\STM32F4xx_HAL_Driver\\Inc",
+                "C:\\Users\\pxj\\STM32Cube\\Repository\\STM32Cube_FW_F4_V1.27.1\\Drivers\\STM32F4xx_HAL_Driver\\Inc\\Legacy",
+                "C:\\Users\\pxj\\STM32Cube\\Repository\\STM32Cube_FW_F4_V1.27.1\\Drivers\\CMSIS\\Device\\ST\\STM32F4xx\\Include",
+                "C:\\Users\\pxj\\STM32Cube\\Repository\\STM32Cube_FW_F4_V1.27.1\\Drivers\\CMSIS\\Include",
+                "C:\\Users\\pxj\\STM32Cube\\Repository\\\\Packs\\STMicroelectronics\\X-CUBE-AZRTOS-F4\\1.1.0\\Middlewares\\ST\\threadx\\common\\inc\\",
+                "C:\\Users\\pxj\\STM32Cube\\Repository\\\\Packs\\STMicroelectronics\\X-CUBE-AZRTOS-F4\\1.1.0\\Middlewares\\ST\\threadx\\ports\\cortex_m4\\iar\\inc\\",
+                "${workspaceFolder}/lib/u8g2/csrc",
+                "${workspaceFolder}/app"
+            ],
+            "defines": [
+                "__IAR_SYSTEMS_ICC__=8",
+                "__ICCARM__=1",
+                "TX_INCLUDE_USER_DEFINE_FILE",
+                "USE_HAL_DRIVER",
+                "STM32F407xx"
+            ],
+            "compilerPath": "C:\\Program Files\\LLVM\\bin\\clang.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "${default}"
+        }
+    ],
+    "version": 4
+}
