@@ -1,5 +1,4 @@
 #include "spacelight_worker.h"
-#include "spacelight.h"
 
 #define CCT_DIM_DEFAULT 100
 #define CCT_DIM_MIN 0

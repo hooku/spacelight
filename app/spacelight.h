@@ -19,16 +19,24 @@
 #define GUI_SCREEN_HEIGHT 64
 #define GUI_TEXT_LEN 32
 
+#define MENU_MAIN_ITEM_COUNT 9
+#define MENU_EFFECT_MODE_ITEM_COUNT 6
+#define MENU_DMX_MODE_ITEM_COUNT 3
+#define MENU_WIRELESS_ITEM_COUNT 2
+#define MENU_VER_ITEM_COUNT 4
+
 typedef enum
 {
     BTN_MENU,
     BTN_BACK,
     BTN_3200K,
     BTN_5600K,
-    BTN_DIM_UP,
-    BTN_DIM_DOWN,
-    BTN_CCT_UP,
-    BTN_CCT_DOWN,
+    BTN_DIM_INC,
+    BTN_DIM_DEC,
+    BTN_DIM_PRESS,
+    BTN_CCT_INC,
+    BTN_CCT_DEC,
+    BTN_CCT_PRESS
 } ButtonType;
 
 typedef enum
@@ -41,13 +49,15 @@ typedef enum
     MAIN_CCT_DRIFT,
     MAIN_FIRE,
     MAIN_INDEP,
-    MENU,
+    MENU_MAIN,
+    MENU_EFFECT_MODE,
     CFG_LAMP_COUNT,
     CFG_DMX_ADDR,
     CFG_DMX_MODE,
     CFG_WIRELESS,
     CFG_LOCK_TIME,
     CFG_VERSION,
+    GUI_UNINITIALIZED,
 } GuiStage;
 
 extern SPI_HandleTypeDef hspi1;

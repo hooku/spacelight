@@ -1,5 +1,4 @@
 #include "spacelight_worker.h"
-#include "spacelight.h"
 
 void spacelight_worker()
 {

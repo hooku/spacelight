@@ -134,16 +134,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
         button_type = BTN_3200K;
         break;
     case P1_A_Pin:
-        button_type = BTN_DIM_UP;
+        button_type = BTN_DIM_INC;
         break;
     case P1_B_Pin:
-        button_type = BTN_DIM_DOWN;
+        button_type = BTN_DIM_DEC;
         break;
     case P3_A_Pin:
-        button_type = BTN_CCT_UP;
+        button_type = BTN_CCT_INC;
         break;
     case P3_B_Pin:
-        button_type = BTN_CCT_DOWN;
+        button_type = BTN_CCT_DEC;
         break;
     }
 

@@ -84,15 +84,19 @@ void spacelight_gui_update(void *gui_message)
 
     switch (*gui_stage)
     {
-    case MENU:
+    case MENU_MAIN:
+    case MENU_EFFECT_MODE:
+    case CFG_DMX_MODE:
+    case CFG_WIRELESS:
+    case CFG_VERSION:
         render_gui_menu(&u8g2, *gui_stage);
         break;
     case CFG_LAMP_COUNT:
+        break;
     case CFG_DMX_ADDR:
-    case CFG_DMX_MODE:
-    case CFG_WIRELESS:
+        break;
     case CFG_LOCK_TIME:
-    case CFG_VERSION:
+        break;
     case MAIN_CCT:
     case MAIN_BLINK:
     case MAIN_BREATHE:
