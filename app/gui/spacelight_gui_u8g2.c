@@ -66,16 +66,7 @@ void spacelight_gui_init()
 
     u8g2_ClearDisplay(&u8g2);
 
-    // while (1)
-    //{
-    //     u8g2_FirstPage(&u8g2);
-    //     do
-    //     {
-    //         u8g2_SetFont(&u8g2, u8g2_font_ncenB14_tr);
-    //         u8g2_DrawStr(&u8g2, 0, 15, "Hello World!");
-    //         u8g2_DrawCircle(&u8g2, 64, 40, 10, U8G2_DRAW_ALL);
-    //     } while (u8g2_NextPage(&u8g2));
-    // }
+    init_gui_menu();
 }
 
 void spacelight_gui_update(void *gui_message)
@@ -92,10 +83,13 @@ void spacelight_gui_update(void *gui_message)
         render_gui_menu(&u8g2, *gui_stage);
         break;
     case CFG_LAMP_COUNT:
+        render_gui_lampcount(&u8g2);
         break;
     case CFG_DMX_ADDR:
+        render_gui_dmxaddr(&u8g2);
         break;
     case CFG_LOCK_TIME:
+        render_gui_locktime(&u8g2);
         break;
     case MAIN_CCT:
     case MAIN_BLINK:

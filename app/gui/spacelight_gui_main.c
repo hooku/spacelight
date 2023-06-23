@@ -78,7 +78,7 @@ typedef struct
     u8g2_uint_t bottom;
 } Rect;
 
-void draw_text(u8g2_t *u8g2, Rect *pos, const char *str)
+static void draw_text(u8g2_t *u8g2, Rect *pos, const char *str)
 {
     u8g2_uint_t str_width = u8g2_GetStrWidth(u8g2, str);
     u8g2_uint_t center_x = pos->left + (pos->right - pos->left) / 2;
@@ -86,7 +86,7 @@ void draw_text(u8g2_t *u8g2, Rect *pos, const char *str)
     u8g2_DrawStr(u8g2, center_x - str_width / 2, pos->bottom, str);
 }
 
-void draw_ctl(u8g2_t *u8g2, DrawCtlParam *ctl, Rect *pos)
+static void draw_ctl(u8g2_t *u8g2, DrawCtlParam *ctl, Rect *pos)
 {
     uint16_t text_gap = (pos->bottom - pos->top) / ctl->draw_mode;
 
@@ -123,7 +123,7 @@ void draw_ctl(u8g2_t *u8g2, DrawCtlParam *ctl, Rect *pos)
     }
 }
 
-void draw_main(u8g2_t *u8g2, GuiParam *gui_param)
+static void draw_main(u8g2_t *u8g2, GuiParam *gui_param)
 {
     u8g2_ClearBuffer(u8g2);
 
@@ -205,6 +205,8 @@ void render_gui_main(u8g2_t *u8g2, GuiStage gui_stage)
 {
     GuiParam gui_param;
 
+    //    printf("hello world!");
+
     switch (gui_stage)
     {
     case MAIN_CCT:
@@ -226,4 +228,14 @@ void render_gui_main(u8g2_t *u8g2, GuiStage gui_stage)
     }
     draw_main(u8g2, &gui_param);
     u8g2_SendBuffer(u8g2);
+}
+
+int _write(int file, char *ptr, int len)
+{
+    int DataIdx;
+    for (DataIdx = 0; DataIdx < len; DataIdx++)
+    {
+        __io_putchar(*ptr++);
+    }
+    return len;
 }

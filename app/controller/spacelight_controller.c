@@ -12,6 +12,7 @@ typedef struct
 
 void spacelight_controller_cct(ButtonType button_type, void **gui_message, void **worker_message);
 void spacelight_controller_blink(ButtonType button_type, void **gui_message, void **worker_message);
+void spacelight_controller_lampcount(ButtonType button_type, void **gui_message, void **worker_message);
 void spacelight_controller_menu(ButtonType button_type, void **gui_message, void **worker_message);
 
 StageControllerMap stage_controller_map[] = {
@@ -25,7 +26,7 @@ StageControllerMap stage_controller_map[] = {
     {MAIN_INDEP, spacelight_controller_cct},
     {MENU_MAIN, spacelight_controller_menu},
     {MENU_EFFECT_MODE, spacelight_controller_menu},
-    {CFG_LAMP_COUNT, spacelight_controller_cct},
+    {CFG_LAMP_COUNT, spacelight_controller_lampcount},
     {CFG_DMX_ADDR, spacelight_controller_cct},
     {CFG_DMX_MODE, spacelight_controller_menu},
     {CFG_WIRELESS, spacelight_controller_menu},
@@ -48,6 +49,31 @@ void spacelight_controller_cct(ButtonType button_type, void **gui_message, void 
         break;
     case BTN_CCT_DEC:
         spacelight_worker_cct_cct_tuner(DECREASE);
+        break;
+    case BTN_MENU:
+        gui_stage = MENU_MAIN;
+        break;
+    default:
+        break;
+    }
+
+    *gui_message = (void *)&gui_stage;
+}
+
+void spacelight_controller_lampcount(ButtonType button_type, void **gui_message, void **worker_message)
+{
+    switch (button_type)
+    {
+    case BTN_DIM_INC:
+    case BTN_CCT_INC:
+        spacelight_worker_lampcount_tuner(INCREASE);
+        break;
+    case BTN_DIM_DEC:
+    case BTN_CCT_DEC:
+        spacelight_worker_lampcount_tuner(DECREASE);
+        break;
+    case BTN_DIM_PRESS:
+    case BTN_CCT_PRESS:
         break;
     case BTN_MENU:
         gui_stage = MENU_MAIN;

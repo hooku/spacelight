@@ -31,10 +31,12 @@ char menu_main[MENU_MAIN_ITEM_COUNT][GUI_TEXT_LEN] = {
 char menu_effect_mode[MENU_EFFECT_MODE_ITEM_COUNT][GUI_TEXT_LEN] = {
     {"None"},
     {"Blink"},
-    {"Breather"},
+    {"Breathe"},
+    {"Rotate"},
     {"Lightning"},
-    {"Drift"},
+    {"CCT Drift"},
     {"Fire"},
+    {"Indep"},
 };
 
 char menu_dmx_mode[MENU_DMX_MODE_ITEM_COUNT][GUI_TEXT_LEN] = {
@@ -50,12 +52,18 @@ char menu_wireless[MENU_WIRELESS_ITEM_COUNT][GUI_TEXT_LEN] = {
 
 char menu_version[MENU_VER_ITEM_COUNT][GUI_TEXT_LEN] = {
     {"COLT LED"},
-    {"HW v1.0"},
-    {"BT v2.0"},
-    {"SW"},
 };
 
-void draw_menu(u8g2_t *u8g2, MenuParam *menu_param)
+void init_gui_menu()
+{
+    sprintf(menu_version[1], "HW v%d.%d", VER_HW_MAJOR, VER_HW_MINOR);
+    sprintf(menu_version[2], "BT v%d.%d", VER_BT_MAJOR, VER_BT_MINOR);
+    sprintf(menu_version[3], "SW v%d.%d", VER_SW_MAJOR, VER_SW_MINOR);
+    sprintf(menu_version[4], "SN %s", VER_SN);
+    sprintf(menu_version[5], "BU %s", __DATE__);
+}
+
+static void draw_menu(u8g2_t *u8g2, MenuParam *menu_param)
 {
     u8g2_ClearBuffer(u8g2);
 

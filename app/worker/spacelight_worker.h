@@ -43,6 +43,9 @@ extern void spacelight_worker_tuner(TunerParam *tuner_param, GenericAction actio
 extern void spacelight_worker_cct_dim_tuner(GenericAction action);
 extern void spacelight_worker_cct_cct_tuner(GenericAction action);
 
+extern uint8_t spacelight_worker_get_lampcount();
+extern void spacelight_worker_lampcount_tuner(GenericAction action);
+
 extern void spacelight_worker_menu_init(uint8_t item_count);
 extern void spacelight_worker_menu_tuner(GenericAction action);
 extern GuiStage spacelight_worker_menu_press(GuiStage gui_stage);
