@@ -12,7 +12,9 @@ typedef struct
 
 void spacelight_controller_cct(ButtonType button_type, void **gui_message, void **worker_message);
 void spacelight_controller_blink(ButtonType button_type, void **gui_message, void **worker_message);
+void spacelight_controller_dmxaddr(ButtonType button_type, void **gui_message, void **worker_message);
 void spacelight_controller_lampcount(ButtonType button_type, void **gui_message, void **worker_message);
+void spacelight_controller_locktime(ButtonType button_type, void **gui_message, void **worker_message);
 void spacelight_controller_menu(ButtonType button_type, void **gui_message, void **worker_message);
 
 StageControllerMap stage_controller_map[] = {
@@ -27,10 +29,10 @@ StageControllerMap stage_controller_map[] = {
     {MENU_MAIN, spacelight_controller_menu},
     {MENU_EFFECT_MODE, spacelight_controller_menu},
     {CFG_LAMP_COUNT, spacelight_controller_lampcount},
-    {CFG_DMX_ADDR, spacelight_controller_cct},
+    {CFG_DMX_ADDR, spacelight_controller_dmxaddr},
     {CFG_DMX_MODE, spacelight_controller_menu},
     {CFG_WIRELESS, spacelight_controller_menu},
-    {CFG_LOCK_TIME, spacelight_controller_cct},
+    {CFG_LOCK_TIME, spacelight_controller_locktime},
     {CFG_VERSION, spacelight_controller_menu},
 };
 
@@ -50,6 +52,12 @@ void spacelight_controller_cct(ButtonType button_type, void **gui_message, void 
     case BTN_CCT_DEC:
         spacelight_worker_cct_cct_tuner(DECREASE);
         break;
+    case BTN_3200K:
+        spacelight_worker_set_cct_3200();
+        break;
+    case BTN_5600K:
+        spacelight_worker_set_cct_5600();
+        break;
     case BTN_MENU:
         gui_stage = MENU_MAIN;
         break;
@@ -60,17 +68,17 @@ void spacelight_controller_cct(ButtonType button_type, void **gui_message, void 
     *gui_message = (void *)&gui_stage;
 }
 
-void spacelight_controller_lampcount(ButtonType button_type, void **gui_message, void **worker_message)
+void spacelight_controller_generic(ButtonType button_type, void **gui_message, void **worker_message, void (*func)(GenericAction action))
 {
     switch (button_type)
     {
     case BTN_DIM_INC:
     case BTN_CCT_INC:
-        spacelight_worker_lampcount_tuner(INCREASE);
+        func(INCREASE);
         break;
     case BTN_DIM_DEC:
     case BTN_CCT_DEC:
-        spacelight_worker_lampcount_tuner(DECREASE);
+        func(DECREASE);
         break;
     case BTN_DIM_PRESS:
     case BTN_CCT_PRESS:
@@ -83,6 +91,21 @@ void spacelight_controller_lampcount(ButtonType button_type, void **gui_message,
     }
 
     *gui_message = (void *)&gui_stage;
+}
+
+void spacelight_controller_dmxaddr(ButtonType button_type, void **gui_message, void **worker_message)
+{
+    spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_dmxaddr_tuner);
+}
+
+void spacelight_controller_lampcount(ButtonType button_type, void **gui_message, void **worker_message)
+{
+    spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_lampcount_tuner);
+}
+
+void spacelight_controller_locktime(ButtonType button_type, void **gui_message, void **worker_message)
+{
+    spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_locktime_tuner);
 }
 
 void spacelight_controller_menu(ButtonType button_type, void **gui_message, void **worker_message)

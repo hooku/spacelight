@@ -69,6 +69,14 @@ typedef enum
     GUI_UNINITIALIZED,
 } GuiStage;
 
+typedef struct
+{
+    u8g2_uint_t left;
+    u8g2_uint_t top;
+    u8g2_uint_t right;
+    u8g2_uint_t bottom;
+} Rect;
+
 extern SPI_HandleTypeDef hspi1;
 
 extern void spacelight_entry(TX_BYTE_POOL tx_app_byte_pool);

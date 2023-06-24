@@ -105,7 +105,7 @@ void spacelight_entry(TX_BYTE_POOL tx_app_byte_pool)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-#define DEBOUNCE_BUTTON_TICK 10U
+#define DEBOUNCE_BUTTON_TICK 25U
 #define DEBOUNCE_TUNER_TICK 5U
 #define DEBOUNCE_REV_TUNER_TICK 10U
 #define IS_TUNER(button_type) ((button_type == BTN_DIM_INC) || \

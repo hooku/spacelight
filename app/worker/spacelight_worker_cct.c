@@ -5,9 +5,9 @@
 #define CCT_DIM_MAX 100
 #define CCT_DIM_STEP 1
 
-#define CCT_CCT_DEFAULT 6500
+#define CCT_CCT_DEFAULT 3400
 #define CCT_CCT_MIN 2600
-#define CCT_CCT_MAX 10000
+#define CCT_CCT_MAX 6000
 #define CCT_CCT_STEP 100
 
 CCTParam cctParam = {
@@ -46,4 +46,14 @@ uint16_t spacelight_worker_get_dim()
 uint16_t spacelight_worker_get_cct()
 {
     return cctParam.cct.value;
+}
+
+void spacelight_worker_set_cct_3200()
+{
+    cctParam.cct.value = 3200;
+}
+
+void spacelight_worker_set_cct_5600()
+{
+    cctParam.cct.value = 5600;
 }

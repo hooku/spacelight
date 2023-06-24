@@ -40,7 +40,7 @@
 #define GUI_TEXT_CTL_MAX_LINE 4
 
 /* GUI element fonts */
-#define GUI_TITLE_FONT u8g2_font_6x12_tr
+#define GUI_TITLE_FONT u8g2_font_6x10_tr
 
 #define GUI_LCTL_FONT_TWO_LINE_0 u8g2_font_pxplusibmvga8_tr
 #define GUI_LCTL_FONT_TWO_LINE_1 u8g2_font_crox4h_tr
@@ -69,14 +69,6 @@ typedef struct
     char title_text[GUI_TEXT_LEN];
     char status_text[GUI_TEXT_LEN];
 } GuiParam;
-
-typedef struct
-{
-    u8g2_uint_t left;
-    u8g2_uint_t top;
-    u8g2_uint_t right;
-    u8g2_uint_t bottom;
-} Rect;
 
 static void draw_text(u8g2_t *u8g2, Rect *pos, const char *str)
 {
@@ -169,8 +161,8 @@ void setup_gui_cct(GuiParam *gui_param)
     sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get_dim());
     strcpy(gui_param->r_ctl.text[0], "CCT");
     sprintf(gui_param->r_ctl.text[1], "%dK", spacelight_worker_get_cct());
-    strcpy(gui_param->title_text, "CCT");
-    strcpy(gui_param->status_text, "DMX:001  DIM & CCT  ");
+    sprintf(gui_param->title_text, "[%d]      CCT         ", spacelight_worker_get_lampcount());
+    sprintf(gui_param->status_text, "DMX:%03d  DIM & CCT  ", spacelight_worker_get_dmxaddr());
 }
 
 void setup_gui_lightning(GuiParam *gui_param)
