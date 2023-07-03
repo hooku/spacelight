@@ -7,6 +7,7 @@
 
 TunerParam lampcountParam = {
     LAMPCOUNT_DEFAULT,
+    LAMPCOUNT_DEFAULT,
     LAMPCOUNT_MIN,
     LAMPCOUNT_MAX,
     LAMPCOUNT_STEP,
@@ -15,6 +16,16 @@ TunerParam lampcountParam = {
 uint16_t spacelight_worker_get_lampcount()
 {
     return lampcountParam.value;
+}
+
+void spacelight_worker_set_lampcount()
+{
+    lampcountParam.value = lampcountParam.new_value;
+}
+
+uint16_t spacelight_worker_get_lampcount_new()
+{
+    return lampcountParam.new_value;
 }
 
 void spacelight_worker_lampcount_tuner(GenericAction action)

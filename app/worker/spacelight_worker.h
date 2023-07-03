@@ -8,6 +8,7 @@
 typedef struct
 {
     uint16_t value;
+    uint16_t new_value;
     uint16_t min;
     uint16_t max;
     uint16_t step;
@@ -58,7 +59,7 @@ extern uint16_t spacelight_worker_get_locktime_max();
 extern uint16_t spacelight_worker_get_locktime_min();
 extern void spacelight_worker_locktime_tuner(GenericAction action);
 
-extern void spacelight_worker_menu_init(uint8_t item_count);
+extern void spacelight_worker_menu_init(GuiStage gui_stage, GuiStage last_gui_stage, uint8_t item_count);
 extern void spacelight_worker_menu_tuner(GenericAction action);
 extern GuiStage spacelight_worker_menu_press(GuiStage gui_stage);
 extern uint16_t spacelight_worker_get_menu_cursor();

@@ -7,6 +7,7 @@
 
 TunerParam locktimeParam = {
     LOCKTIME_DEFAULT,
+    LOCKTIME_DEFAULT,
     LOCKTIME_MIN,
     LOCKTIME_MAX,
     LOCKTIME_STEP,
@@ -15,6 +16,16 @@ TunerParam locktimeParam = {
 uint16_t spacelight_worker_get_locktime()
 {
     return locktimeParam.value;
+}
+
+void spacelight_worker_set_locktime()
+{
+    locktimeParam.value = locktimeParam.new_value;
+}
+
+uint16_t spacelight_worker_get_locktime_new()
+{
+    return locktimeParam.new_value;
 }
 
 uint16_t spacelight_worker_get_locktime_max()

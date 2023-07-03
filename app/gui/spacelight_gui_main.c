@@ -44,8 +44,8 @@
 
 #define GUI_LCTL_FONT_TWO_LINE_0 u8g2_font_pxplusibmvga8_tr
 #define GUI_LCTL_FONT_TWO_LINE_1 u8g2_font_crox4h_tr
-#define GUI_LCTL_FONT_THREE_LINE u8g2_font_5x8_tr
-#define GUI_LCTL_FONT_FOUR_LINE u8g2_font_5x8_tr
+#define GUI_LCTL_FONT_THREE_LINE u8g2_font_profont11_tr
+#define GUI_LCTL_FONT_FOUR_LINE u8g2_font_profont11_tr
 
 #define GUI_STATUS_FONT u8g2_font_profont11_tr
 
@@ -55,6 +55,18 @@ typedef enum
     THREE_LINE = 3,
     FOUR_LINE = 4,
 } CtlDrawMode;
+
+typedef struct
+{
+    GuiStage gui_stage;
+    char title_text[GUI_TEXT_LEN];
+} StageTitleMap;
+
+typedef struct
+{
+    DmxMode dmx_mode;
+    char status_text[GUI_TEXT_LEN];
+} DmxStatusMap;
 
 typedef struct
 {
@@ -69,6 +81,23 @@ typedef struct
     char title_text[GUI_TEXT_LEN];
     char status_text[GUI_TEXT_LEN];
 } GuiParam;
+
+StageTitleMap stage_title_map[] = {
+    { MAIN_CCT, STR_CCT },
+    { MAIN_BLINK, STR_BLINK },
+    { MAIN_BREATHE, STR_BREATHE },
+    { MAIN_ROTATE, STR_ROTATE },
+    { MAIN_LIGHTNING, STR_LIGHTNING },
+    { MAIN_CCT_DRIFT, STR_CCTDRIFT },
+    { MAIN_FIRE, STR_FIRE },
+    { MAIN_INDEP, STR_INDEP },
+};
+
+DmxStatusMap dmx_mode_map[] = {
+    { DMX_2CH, STR_2CH },
+    { DMX_8CH, STR_8CH },
+    { DMX_11CH, STR_11CH },
+};
 
 static void draw_text(u8g2_t *u8g2, Rect *pos, const char *str)
 {
@@ -161,8 +190,40 @@ void setup_gui_cct(GuiParam *gui_param)
     sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get_dim());
     strcpy(gui_param->r_ctl.text[0], "CCT");
     sprintf(gui_param->r_ctl.text[1], "%dK", spacelight_worker_get_cct());
-    sprintf(gui_param->title_text, "[%d]      CCT         ", spacelight_worker_get_lampcount());
-    sprintf(gui_param->status_text, "DMX:%03d  DIM & CCT  ", spacelight_worker_get_dmxaddr());
+}
+
+void setup_gui_blink(GuiParam *gui_param)
+{
+    gui_param->l_ctl.draw_mode = TWO_LINE;
+    gui_param->r_ctl.draw_mode = FOUR_LINE;
+    strcpy(gui_param->l_ctl.text[0], "DIM");
+    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get_dim());
+    strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
+    strcpy(gui_param->r_ctl.text[1], "6000  1  ");
+    strcpy(gui_param->r_ctl.text[2], "Duty     ");
+    strcpy(gui_param->r_ctl.text[3], "46       ");
+}
+
+void setup_gui_breathe(GuiParam *gui_param)
+{
+    gui_param->l_ctl.draw_mode = TWO_LINE;
+    gui_param->r_ctl.draw_mode = FOUR_LINE;
+    strcpy(gui_param->l_ctl.text[0], "DIM");
+    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get_dim());
+    strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
+    strcpy(gui_param->r_ctl.text[1], "6000  1  ");
+}
+
+void setup_gui_rotate(GuiParam *gui_param)
+{
+    gui_param->l_ctl.draw_mode = TWO_LINE;
+    gui_param->r_ctl.draw_mode = FOUR_LINE;
+    strcpy(gui_param->l_ctl.text[0], "DIM");
+    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get_dim());
+    strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
+    strcpy(gui_param->r_ctl.text[1], "6000  1  ");
+    strcpy(gui_param->r_ctl.text[2], "Duty     ");
+    strcpy(gui_param->r_ctl.text[3], "46       ");
 }
 
 void setup_gui_lightning(GuiParam *gui_param)
@@ -175,8 +236,30 @@ void setup_gui_lightning(GuiParam *gui_param)
     strcpy(gui_param->r_ctl.text[1], "6000  1  ");
     strcpy(gui_param->r_ctl.text[2], "Duty     ");
     strcpy(gui_param->r_ctl.text[3], "46       ");
-    strcpy(gui_param->title_text, "Lightning");
-    strcpy(gui_param->status_text, "DMX: 001  DIM & CCT");
+}
+
+void setup_gui_cctdrift(GuiParam *gui_param)
+{
+    gui_param->l_ctl.draw_mode = TWO_LINE;
+    gui_param->r_ctl.draw_mode = FOUR_LINE;
+    strcpy(gui_param->l_ctl.text[0], "DIM");
+    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get_dim());
+    strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
+    strcpy(gui_param->r_ctl.text[1], "6000  1  ");
+    strcpy(gui_param->r_ctl.text[2], "Duty     ");
+    strcpy(gui_param->r_ctl.text[3], "46       ");
+}
+
+void setup_gui_fire(GuiParam *gui_param)
+{
+    gui_param->l_ctl.draw_mode = TWO_LINE;
+    gui_param->r_ctl.draw_mode = FOUR_LINE;
+    strcpy(gui_param->l_ctl.text[0], "DIM");
+    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get_dim());
+    strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
+    strcpy(gui_param->r_ctl.text[1], "6000  1  ");
+    strcpy(gui_param->r_ctl.text[2], "Duty     ");
+    strcpy(gui_param->r_ctl.text[3], "46       ");
 }
 
 void setup_gui_indep(GuiParam *gui_param)
@@ -189,15 +272,22 @@ void setup_gui_indep(GuiParam *gui_param)
     strcpy(gui_param->r_ctl.text[0], "DIM    CCT");
     strcpy(gui_param->r_ctl.text[1], "#3 025 2600");
     strcpy(gui_param->r_ctl.text[2], "#4 025 2600");
-    strcpy(gui_param->title_text, "Indep");
-    strcpy(gui_param->status_text, "DMX: 001  DIM & CCT");
 }
 
 void render_gui_main(u8g2_t *u8g2, GuiStage gui_stage)
 {
     GuiParam gui_param;
 
-    //    printf("hello world!");
+    if ((gui_stage >= MAIN_CCT) && (gui_stage <= MAIN_INDEP))
+    {
+        sprintf(gui_param.title_text, "[%d] %-17s",
+                spacelight_worker_get_lampcount(),
+                stage_title_map[gui_stage].title_text);
+        
+        sprintf(gui_param.status_text, "DMX: %03d  %-10s",
+                spacelight_worker_get_dmxaddr(),
+                dmx_mode_map[spacelight_worker_get_dmx_mode()].status_text);
+    }
 
     switch (gui_stage)
     {

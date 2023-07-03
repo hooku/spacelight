@@ -10,6 +10,9 @@ TX_THREAD th_gui;
 TX_THREAD th_worker;
 TX_THREAD th_controller;
 
+GPIO_PinState last_sw2 = GPIO_PIN_SET;
+ULONG last_sw2_tick = 0;
+
 void thread_gui(ULONG param)
 {
     spacelight_gui_init();
@@ -101,13 +104,13 @@ void spacelight_entry(TX_BYTE_POOL tx_app_byte_pool)
     tx_thread_create(&th_controller, "controller", thread_controller, 0,
                      ptr, SPACELIGHT_INPUT_STACK_SIZE,
                      1, 1, TX_NO_TIME_SLICE, TX_AUTO_START);
+    
+    /* enable TIM2 CH1 as SW1 */
+    HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-#define DEBOUNCE_BUTTON_TICK 25U
-#define DEBOUNCE_TUNER_TICK 5U
-#define DEBOUNCE_REV_TUNER_TICK 10U
 #define IS_TUNER(button_type) ((button_type == BTN_DIM_INC) || \
                                (button_type == BTN_DIM_DEC) || \
                                (button_type == BTN_CCT_INC) || \
@@ -170,6 +173,21 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     last_event_tick = current_event_tick;
 
     UINT status;
+    status = tx_queue_send(&qu_input, &button_type, TX_NO_WAIT);
+    assert_param(status == TX_SUCCESS);
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef* htim)
+{
+    ULONG current_event_tick = tx_time_get();
+    static ULONG last_event_tick = 0;
+  
+    if ((current_event_tick - last_event_tick) < DEBOUNCE_BUTTON_TICK)
+        return;
+    last_event_tick = current_event_tick;
+    
+    UINT status;
+    ButtonType button_type = BTN_DIM_PRESS;
     status = tx_queue_send(&qu_input, &button_type, TX_NO_WAIT);
     assert_param(status == TX_SUCCESS);
 }

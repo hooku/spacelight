@@ -1,7 +1,7 @@
 #include "spacelight_worker.h"
 
 #define TUNER_QUICK_SLIDE_THRESHOLD_COUNT 3
-#define TUNER_QUICK_SLIDE_THRESHOLD_TIME 25
+#define TUNER_QUICK_SLIDE_THRESHOLD_TIME 15
 
 void spacelight_worker()
 {
@@ -14,7 +14,7 @@ void spacelight_worker_tuner(TunerParam *tuner_param, GenericAction action)
 
     static TunerParam *last_tuner_param = NULL;
     static GenericAction last_action;
-    static uint16_t last_tuner_tick = 0;
+    static ULONG last_tuner_tick = 0;
     static uint8_t last_tuner_count = 0;
 
     ULONG current_tuner_tick = tx_time_get();
@@ -38,20 +38,20 @@ void spacelight_worker_tuner(TunerParam *tuner_param, GenericAction action)
     {
 
     case DECREASE:
-        if (tuner_param->value < step)
-            tuner_param->value = tuner_param->min;
+        if (tuner_param->new_value < step)
+            tuner_param->new_value = tuner_param->min;
         else
-            new_value = tuner_param->value - step;
+            new_value = tuner_param->new_value - step;
         break;
     case INCREASE:
     default:
-        new_value = tuner_param->value + step;
+        new_value = tuner_param->new_value + step;
         break;
     }
     if ((new_value <= tuner_param->max) && (new_value >= tuner_param->min))
-        tuner_param->value = new_value;
+        tuner_param->new_value = new_value;
     else if (new_value > tuner_param->max)
-        tuner_param->value = tuner_param->max;
+        tuner_param->new_value = tuner_param->max;
     else if (new_value < tuner_param->min)
-        tuner_param->value = tuner_param->min;
+        tuner_param->new_value = tuner_param->min;
 }

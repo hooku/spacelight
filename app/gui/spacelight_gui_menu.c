@@ -30,19 +30,19 @@ char menu_main[MENU_MAIN_ITEM_COUNT][GUI_TEXT_LEN] = {
 
 char menu_effect_mode[MENU_EFFECT_MODE_ITEM_COUNT][GUI_TEXT_LEN] = {
     {"None"},
-    {"Blink"},
-    {"Breathe"},
-    {"Rotate"},
-    {"Lightning"},
-    {"CCT Drift"},
-    {"Fire"},
-    {"Indep"},
+    {STR_BLINK},
+    {STR_BREATHE},
+    {STR_ROTATE},
+    {STR_LIGHTNING},
+    {STR_CCTDRIFT},
+    {STR_FIRE},
+    {STR_INDEP},
 };
 
 char menu_dmx_mode[MENU_DMX_MODE_ITEM_COUNT][GUI_TEXT_LEN] = {
-    {"2Ch-DIM & CCT"},
-    {"8Ch-Independent"},
-    {"11Ch-A11 param"},
+    {"2Ch-" STR_2CH},
+    {"8Ch-" STR_8CH},
+    {"11Ch-" STR_11CH},
 };
 
 char menu_wireless[MENU_WIRELESS_ITEM_COUNT][GUI_TEXT_LEN] = {
@@ -87,11 +87,10 @@ static void draw_menu(u8g2_t *u8g2, MenuParam *menu_param)
     }
 }
 
-void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage)
+void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage)
 {
     MenuParam menu_param;
     static uint32_t last_first_visible = 0;
-    static GuiStage last_gui_stage = GUI_UNINITIALIZED;
 
     switch (gui_stage)
     {
@@ -119,10 +118,10 @@ void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage)
         break;
     }
 
-    if (last_gui_stage != gui_stage)
+    if (gui_stage != last_gui_stage)
     {
-        spacelight_worker_menu_init(menu_param.item_count);
-        last_gui_stage = gui_stage;
+        spacelight_worker_menu_init(gui_stage, last_gui_stage, menu_param.item_count);
+        last_first_visible = 0;
     }
 
     menu_param.cursor = spacelight_worker_get_menu_cursor();

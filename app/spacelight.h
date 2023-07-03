@@ -33,6 +33,25 @@
 #define MENU_WIRELESS_ITEM_COUNT 2
 #define MENU_VER_ITEM_COUNT 6
 
+#define DEBOUNCE_BUTTON_TICK 50U
+#define DEBOUNCE_TUNER_TICK 10U
+#define DEBOUNCE_REV_TUNER_TICK 20U
+
+#define STR_UNLOCK      "Press Back to unlock"
+
+#define STR_CCT         ""
+#define STR_BLINK       "Blink"
+#define STR_BREATHE     "Breathe"
+#define STR_ROTATE      "Rotate"
+#define STR_LIGHTNING   "Lightning"
+#define STR_CCTDRIFT    "CCT Drift"
+#define STR_FIRE        "Fire"
+#define STR_INDEP       "Indep"
+
+#define STR_2CH         "DIM & CCT"
+#define STR_8CH         "Independent"
+#define STR_11CH        "All param"
+
 typedef enum
 {
     BTN_MENU,
@@ -69,6 +88,19 @@ typedef enum
     GUI_UNINITIALIZED,
 } GuiStage;
 
+typedef enum
+{
+    DMX_2CH,
+    DMX_8CH,
+    DMX_11CH,
+} DmxMode;
+
+typedef enum
+{
+   WIRELESS_ON,
+   WIRELESS_OFF,
+} WirelessMode;
+
 typedef struct
 {
     u8g2_uint_t left;
@@ -78,6 +110,7 @@ typedef struct
 } Rect;
 
 extern SPI_HandleTypeDef hspi1;
+extern TIM_HandleTypeDef htim2;
 
 extern void spacelight_entry(TX_BYTE_POOL tx_app_byte_pool);
 
@@ -89,10 +122,37 @@ extern void spacelight_gui_update(void *gui_message);
 extern void render_gui_main(u8g2_t *u8g2, GuiStage gui_stage);
 
 extern void init_gui_menu();
-extern void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage);
+extern void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
 
 extern void render_gui_dmxaddr(u8g2_t *u8g2);
 extern void render_gui_lampcount(u8g2_t *u8g2);
 extern void render_gui_locktime(u8g2_t *u8g2);
+
+extern TX_QUEUE qu_input;
+
+extern GPIO_PinState last_sw2;
+extern ULONG last_sw2_tick;
+
+inline void spacelight_tim_cb(TIM_HandleTypeDef *htim)
+{
+    GPIO_PinState current_sw2 = HAL_GPIO_ReadPin(SW2_GPIO_Port, SW2_Pin);
+    if (current_sw2 != last_sw2)
+    {           
+        if (current_sw2 == GPIO_PIN_RESET)
+        {
+            ULONG current_sw2_tick = tx_time_get();
+            if ((current_sw2_tick - last_sw2_tick) >= DEBOUNCE_BUTTON_TICK)
+            {
+                UINT status;
+                ButtonType button_type = BTN_CCT_PRESS;
+                status = tx_queue_send(&qu_input, &button_type, TX_NO_WAIT);
+                assert_param(status == TX_SUCCESS);
+                
+                last_sw2_tick = current_sw2_tick;
+            }
+        }
+        last_sw2 = current_sw2;
+    }
+}
 
 #endif // __SPACELIGHT_H_

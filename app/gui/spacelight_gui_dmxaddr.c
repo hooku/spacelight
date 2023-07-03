@@ -21,7 +21,7 @@ void render_gui_dmxaddr(u8g2_t *u8g2)
     u8g2_DrawStr(u8g2, DMXADDR_LEFT - title_width / 2, DMXADDR_TOP_LINE_0, dmxaddr_title);
 
     char dmxaddr_text[GUI_TEXT_LEN];
-    uint16_t dmxaddr = spacelight_worker_get_dmxaddr();
+    uint16_t dmxaddr = spacelight_worker_get_dmxaddr_new();
     sprintf(dmxaddr_text, "%d", dmxaddr);
     u8g2_SetFont(u8g2, DMXADDR_LINE_1_FONT);
     u8g2_DrawStr(u8g2, DMXADDR_LEFT, DMXADDR_TOP_LINE_1, dmxaddr_text);

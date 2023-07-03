@@ -58,6 +58,7 @@ void spacelight_controller_cct(ButtonType button_type, void **gui_message, void 
     case BTN_5600K:
         spacelight_worker_set_cct_5600();
         break;
+    case BTN_CCT_PRESS:
     case BTN_MENU:
         gui_stage = MENU_MAIN;
         break;
@@ -84,6 +85,7 @@ void spacelight_controller_generic(ButtonType button_type, void **gui_message, v
     case BTN_CCT_PRESS:
         break;
     case BTN_MENU:
+    case BTN_BACK:
         gui_stage = MENU_MAIN;
         break;
     default:
@@ -95,17 +97,56 @@ void spacelight_controller_generic(ButtonType button_type, void **gui_message, v
 
 void spacelight_controller_dmxaddr(ButtonType button_type, void **gui_message, void **worker_message)
 {
-    spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_dmxaddr_tuner);
+    switch (button_type)
+    {
+    case BTN_DIM_PRESS:
+    case BTN_CCT_PRESS:
+        spacelight_worker_set_dmxaddr();
+    case BTN_BACK:
+        gui_stage = MENU_MAIN;
+        break;
+    default:
+        spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_dmxaddr_tuner);
+        break;
+    }
+    
+    *gui_message = (void *)&gui_stage;
 }
 
 void spacelight_controller_lampcount(ButtonType button_type, void **gui_message, void **worker_message)
 {
-    spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_lampcount_tuner);
+    switch (button_type)
+    {
+    case BTN_DIM_PRESS:
+    case BTN_CCT_PRESS:
+        spacelight_worker_set_lampcount();
+    case BTN_BACK:
+        gui_stage = MENU_MAIN;
+        break;
+    default:
+        spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_lampcount_tuner);
+        break;
+    }
+    
+    *gui_message = (void *)&gui_stage;
 }
 
 void spacelight_controller_locktime(ButtonType button_type, void **gui_message, void **worker_message)
 {
-    spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_locktime_tuner);
+    switch (button_type)
+    {
+    case BTN_DIM_PRESS:
+    case BTN_CCT_PRESS:
+        spacelight_worker_set_locktime();
+    case BTN_BACK:
+        gui_stage = MENU_MAIN;
+        break;
+    default: 
+        spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_locktime_tuner);
+        break;
+    }
+    
+    *gui_message = (void *)&gui_stage;
 }
 
 void spacelight_controller_menu(ButtonType button_type, void **gui_message, void **worker_message)
@@ -122,12 +163,11 @@ void spacelight_controller_menu(ButtonType button_type, void **gui_message, void
         break;
     case BTN_DIM_PRESS:
     case BTN_CCT_PRESS:
+        gui_stage = spacelight_worker_menu_press(gui_stage);
         break;
     case BTN_MENU:
-        gui_stage = MAIN_CCT;
-        break;
-    case BTN_5600K:
-        gui_stage = spacelight_worker_menu_press(gui_stage);
+    case BTN_BACK:
+        gui_stage = (gui_stage == MENU_MAIN) ? MAIN_CCT : MENU_MAIN;
         break;
     default:
         break;

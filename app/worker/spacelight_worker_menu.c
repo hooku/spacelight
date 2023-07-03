@@ -61,14 +61,58 @@ ItemStageMap itemStageMapEffectMode[] = {
 
 TunerParam menuParam = {
     MENU_DEFAULT,
+    MENU_DEFAULT,
     MENU_MIN,
     MENU_MAX,
     MENU_STEP,
 };
 
-void spacelight_worker_menu_init(uint8_t item_count)
+DmxMode dmx_mode = DMX_2CH;
+WirelessMode wireless_mode = WIRELESS_ON;
+
+DmxMode spacelight_worker_get_dmx_mode()
 {
-    menuParam.value = MENU_DEFAULT;
+    return dmx_mode;
+}
+
+static void spacelight_worker_set_dmx_mode()
+{
+    dmx_mode = menuParam.new_value;
+}
+
+WirelessMode spacelight_worker_get_wireless_mode()
+{
+    return wireless_mode;
+}
+
+static void spacelight_worker_set_wireless_mode()
+{
+    wireless_mode = menuParam.new_value;
+}
+
+void spacelight_worker_menu_init(GuiStage gui_stage, GuiStage last_gui_stage, uint8_t item_count)
+{
+    switch (gui_stage)
+    {
+    case CFG_DMX_MODE:
+        menuParam.value = dmx_mode;
+        break;
+    case CFG_WIRELESS:
+        menuParam.value = wireless_mode;
+        break;
+    default:
+        switch (last_gui_stage)
+        {
+        case CFG_DMX_MODE:
+        case CFG_WIRELESS:
+            break;
+        default:
+            menuParam.value = MENU_DEFAULT;
+            break;
+        }
+        break;
+    }
+    menuParam.new_value = menuParam.value;
     menuParam.max = item_count - 1;
 }
 
@@ -79,7 +123,7 @@ void spacelight_worker_menu_tuner(GenericAction action)
 
 uint16_t spacelight_worker_get_menu_cursor()
 {
-    return menuParam.value;
+    return menuParam.new_value;
 }
 
 GuiStage spacelight_worker_menu_press(GuiStage gui_stage)
@@ -89,16 +133,22 @@ GuiStage spacelight_worker_menu_press(GuiStage gui_stage)
     switch (gui_stage)
     {
     case MENU_EFFECT_MODE:
-        next_gui_stage = itemStageMapEffectMode[menuParam.value].gui_stage;
+        next_gui_stage = itemStageMapEffectMode[menuParam.new_value].gui_stage;
         break;
     case CFG_DMX_MODE:
+        spacelight_worker_set_dmx_mode();
+        next_gui_stage = MENU_MAIN;
+        break;
     case CFG_WIRELESS:
+        spacelight_worker_set_wireless_mode();
+        next_gui_stage = MENU_MAIN;
+        break;
     case CFG_VERSION:
         next_gui_stage = MENU_MAIN;
         break;
     case MENU_MAIN:
     default:
-        next_gui_stage = itemStageMapMain[menuParam.value].gui_stage;
+        next_gui_stage = itemStageMapMain[menuParam.new_value].gui_stage;
         break;
     }
     return next_gui_stage;

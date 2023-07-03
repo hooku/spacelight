@@ -71,7 +71,7 @@ void render_gui_lampcount(u8g2_t *u8g2)
 {
     u8g2_ClearBuffer(u8g2);
 
-    uint16_t lampcount = spacelight_worker_get_lampcount();
+    uint16_t lampcount = spacelight_worker_get_lampcount_new();
 
     for (uint16_t i_lamp = 0; i_lamp < LAMP_TOTAL; i_lamp++)
     {

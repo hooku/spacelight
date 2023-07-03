@@ -1,8 +1,9 @@
  AZURE_RTOS/App/app_azure_rtos.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Core/Src/main.c                 | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/AZURE_RTOS/App/app_azure_rtos.c b/AZURE_RTOS/App/app_azure_rtos.c
-index 396db4c..ba9a079 100644
+index 396db4c..6db27f5 100644
 --- a/AZURE_RTOS/App/app_azure_rtos.c
 +++ b/AZURE_RTOS/App/app_azure_rtos.c
 @@ -25,7 +25,7 @@
@@ -23,6 +24,28 @@ index 396db4c..ba9a079 100644
      /* USER CODE END  App_ThreadX_Init_Success */
  
    }
+diff --git a/Core/Src/main.c b/Core/Src/main.c
+index d1ee092..aa1af43 100644
+--- a/Core/Src/main.c
++++ b/Core/Src/main.c
+@@ -22,7 +22,7 @@
+ 
+ /* Private includes ----------------------------------------------------------*/
+ /* USER CODE BEGIN Includes */
+-
++#include "spacelight.h"
+ /* USER CODE END Includes */
+ 
+ /* Private typedef -----------------------------------------------------------*/
+@@ -506,7 +506,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+     HAL_IncTick();
+   }
+   /* USER CODE BEGIN Callback 1 */
+-
++  spacelight_tim_cb(htim);
+   /* USER CODE END Callback 1 */
+ }
+ 
 -- 
-2.39.2.windows.1
+2.39.1.windows.1
 

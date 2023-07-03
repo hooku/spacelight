@@ -7,6 +7,7 @@
 
 TunerParam dmxaddrParam = {
     DMXADDR_DEFAULT,
+    DMXADDR_DEFAULT,
     DMXADDR_MIN,
     DMXADDR_MAX,
     DMXADDR_STEP,
@@ -15,6 +16,16 @@ TunerParam dmxaddrParam = {
 uint16_t spacelight_worker_get_dmxaddr()
 {
     return dmxaddrParam.value;
+}
+
+void spacelight_worker_set_dmxaddr()
+{
+    dmxaddrParam.value = dmxaddrParam.new_value;
+}
+
+uint16_t spacelight_worker_get_dmxaddr_new()
+{
+    return dmxaddrParam.new_value;
 }
 
 void spacelight_worker_dmxaddr_tuner(GenericAction action)

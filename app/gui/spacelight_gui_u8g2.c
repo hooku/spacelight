@@ -72,7 +72,8 @@ void spacelight_gui_init()
 void spacelight_gui_update(void *gui_message)
 {
     GuiStage *gui_stage = (GuiStage *)gui_message;
-
+    static GuiStage last_gui_stage = GUI_UNINITIALIZED;
+    
     switch (*gui_stage)
     {
     case MENU_MAIN:
@@ -80,7 +81,7 @@ void spacelight_gui_update(void *gui_message)
     case CFG_DMX_MODE:
     case CFG_WIRELESS:
     case CFG_VERSION:
-        render_gui_menu(&u8g2, *gui_stage);
+        render_gui_menu(&u8g2, *gui_stage, last_gui_stage);
         break;
     case CFG_LAMP_COUNT:
         render_gui_lampcount(&u8g2);
@@ -103,4 +104,6 @@ void spacelight_gui_update(void *gui_message)
         render_gui_main(&u8g2, *gui_stage);
         break;
     }
+    
+    last_gui_stage = *gui_stage;
 }
