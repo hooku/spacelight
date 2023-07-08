@@ -3,6 +3,25 @@
 #define TUNER_QUICK_SLIDE_THRESHOLD_COUNT 3
 #define TUNER_QUICK_SLIDE_THRESHOLD_TIME 15
 
+typedef struct
+{
+    WorkerStage worker_stage;
+    GuiStage gui_stage;
+} WorkerGuiStageMap;
+
+WorkerGuiStageMap work_gui_stage_map[] = {
+    {WORK_CCT, MAIN_CCT},
+    {WORK_BLINK, MAIN_BLINK},
+    {WORK_BREATHE, MAIN_BREATHE},
+    {WORK_ROTATE, MAIN_ROTATE},
+    {WORK_LIGHTNING, MAIN_LIGHTNING},
+    {WORK_CCT_DRIFT, MAIN_CCT_DRIFT},
+    {WORK_FIRE, MAIN_FIRE},
+    {WORK_INDEP, MAIN_INDEP},
+};
+
+WorkerStage worker_stage = WORK_CCT;
+
 void spacelight_worker()
 {
 }

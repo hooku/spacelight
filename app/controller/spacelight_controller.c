@@ -109,7 +109,7 @@ void spacelight_controller_dmxaddr(ButtonType button_type, void **gui_message, v
         spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_dmxaddr_tuner);
         break;
     }
-    
+
     *gui_message = (void *)&gui_stage;
 }
 
@@ -127,7 +127,7 @@ void spacelight_controller_lampcount(ButtonType button_type, void **gui_message,
         spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_lampcount_tuner);
         break;
     }
-    
+
     *gui_message = (void *)&gui_stage;
 }
 
@@ -141,11 +141,11 @@ void spacelight_controller_locktime(ButtonType button_type, void **gui_message, 
     case BTN_BACK:
         gui_stage = MENU_MAIN;
         break;
-    default: 
+    default:
         spacelight_controller_generic(button_type, gui_message, worker_message, spacelight_worker_locktime_tuner);
         break;
     }
-    
+
     *gui_message = (void *)&gui_stage;
 }
 

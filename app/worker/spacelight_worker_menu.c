@@ -70,6 +70,7 @@ TunerParam menuParam = {
 DmxMode dmx_mode = DMX_2CH;
 WirelessMode wireless_mode = WIRELESS_ON;
 
+/* DMX Mode */
 DmxMode spacelight_worker_get_dmx_mode()
 {
     return dmx_mode;
@@ -80,6 +81,7 @@ static void spacelight_worker_set_dmx_mode()
     dmx_mode = menuParam.new_value;
 }
 
+/* Wireless Mode */
 WirelessMode spacelight_worker_get_wireless_mode()
 {
     return wireless_mode;
@@ -124,6 +126,12 @@ void spacelight_worker_menu_tuner(GenericAction action)
 uint16_t spacelight_worker_get_menu_cursor()
 {
     return menuParam.new_value;
+}
+
+void spacelight_worker_set_menu_cursor(uint16_t cursor)
+{
+    menuParam.value = cursor;
+    menuParam.new_value = menuParam.value;
 }
 
 GuiStage spacelight_worker_menu_press(GuiStage gui_stage)

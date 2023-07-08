@@ -37,20 +37,22 @@
 #define DEBOUNCE_TUNER_TICK 10U
 #define DEBOUNCE_REV_TUNER_TICK 20U
 
-#define STR_UNLOCK      "Press Back to unlock"
+#define STR_UNLOCK "Press Back to unlock"
 
-#define STR_CCT         ""
-#define STR_BLINK       "Blink"
-#define STR_BREATHE     "Breathe"
-#define STR_ROTATE      "Rotate"
-#define STR_LIGHTNING   "Lightning"
-#define STR_CCTDRIFT    "CCT Drift"
-#define STR_FIRE        "Fire"
-#define STR_INDEP       "Indep"
+#define STR_CCT ""
+#define STR_BLINK "Blink"
+#define STR_BREATHE "Breathe"
+#define STR_ROTATE "Rotate"
+#define STR_LIGHTNING "Lightning"
+#define STR_CCTDRIFT "CCT Drift"
+#define STR_FIRE "Fire"
+#define STR_INDEP "Indep"
 
-#define STR_2CH         "DIM & CCT"
-#define STR_8CH         "Independent"
-#define STR_11CH        "All param"
+#define STR_2CH "DIM & CCT"
+#define STR_8CH "Independent"
+#define STR_11CH "All param"
+
+#define IS_MAIN_GUI(stage) ((stage >= MAIN_CCT) && (stage <= MAIN_INDEP))
 
 typedef enum
 {
@@ -90,6 +92,18 @@ typedef enum
 
 typedef enum
 {
+    WORK_CCT,
+    WORK_BLINK,
+    WORK_BREATHE,
+    WORK_ROTATE,
+    WORK_LIGHTNING,
+    WORK_CCT_DRIFT,
+    WORK_FIRE,
+    WORK_INDEP,
+} WorkerStage;
+
+typedef enum
+{
     DMX_2CH,
     DMX_8CH,
     DMX_11CH,
@@ -97,8 +111,8 @@ typedef enum
 
 typedef enum
 {
-   WIRELESS_ON,
-   WIRELESS_OFF,
+    WIRELESS_ON,
+    WIRELESS_OFF,
 } WirelessMode;
 
 typedef struct
@@ -137,7 +151,7 @@ inline void spacelight_tim_cb(TIM_HandleTypeDef *htim)
 {
     GPIO_PinState current_sw2 = HAL_GPIO_ReadPin(SW2_GPIO_Port, SW2_Pin);
     if (current_sw2 != last_sw2)
-    {           
+    {
         if (current_sw2 == GPIO_PIN_RESET)
         {
             ULONG current_sw2_tick = tx_time_get();
@@ -147,7 +161,7 @@ inline void spacelight_tim_cb(TIM_HandleTypeDef *htim)
                 ButtonType button_type = BTN_CCT_PRESS;
                 status = tx_queue_send(&qu_input, &button_type, TX_NO_WAIT);
                 assert_param(status == TX_SUCCESS);
-                
+
                 last_sw2_tick = current_sw2_tick;
             }
         }

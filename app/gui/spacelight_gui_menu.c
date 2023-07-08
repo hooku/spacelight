@@ -91,6 +91,7 @@ void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage)
 {
     MenuParam menu_param;
     static uint32_t last_first_visible = 0;
+    static uint32_t menu_main_last_first_visible = 0, menu_main_last_cursor = 0;
 
     switch (gui_stage)
     {
@@ -120,8 +121,17 @@ void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage)
 
     if (gui_stage != last_gui_stage)
     {
+        /* enter sub menu */
+        if (gui_stage != MENU_MAIN)
+            last_first_visible = 0;
         spacelight_worker_menu_init(gui_stage, last_gui_stage, menu_param.item_count);
-        last_first_visible = 0;
+        if ((gui_stage == MENU_MAIN) && (!IS_MAIN_GUI(last_gui_stage)))
+        {
+            /* enter main menu from sub memu exit */
+            last_first_visible = menu_main_last_first_visible;
+            menu_param.cursor = menu_main_last_cursor;
+            spacelight_worker_set_menu_cursor(menu_param.cursor);
+        }
     }
 
     menu_param.cursor = spacelight_worker_get_menu_cursor();
@@ -133,6 +143,14 @@ void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage)
     {
         last_first_visible = menu_param.cursor - MENU_ITEM_ONSCREEN + 1;
     }
+
+    if (gui_stage == MENU_MAIN)
+    {
+        /* remember main menu focus */
+        menu_main_last_first_visible = last_first_visible;
+        menu_main_last_cursor = spacelight_worker_get_menu_cursor();
+    }
+
     menu_param.first_visible = last_first_visible;
     menu_param.menu += GUI_TEXT_LEN * last_first_visible;
     draw_menu(u8g2, &menu_param);

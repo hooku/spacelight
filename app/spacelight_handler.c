@@ -104,7 +104,7 @@ void spacelight_entry(TX_BYTE_POOL tx_app_byte_pool)
     tx_thread_create(&th_controller, "controller", thread_controller, 0,
                      ptr, SPACELIGHT_INPUT_STACK_SIZE,
                      1, 1, TX_NO_TIME_SLICE, TX_AUTO_START);
-    
+
     /* enable TIM2 CH1 as SW1 */
     HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
 }
@@ -177,15 +177,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     assert_param(status == TX_SUCCESS);
 }
 
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef* htim)
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
     ULONG current_event_tick = tx_time_get();
     static ULONG last_event_tick = 0;
-  
+
     if ((current_event_tick - last_event_tick) < DEBOUNCE_BUTTON_TICK)
         return;
     last_event_tick = current_event_tick;
-    
+
     UINT status;
     ButtonType button_type = BTN_DIM_PRESS;
     status = tx_queue_send(&qu_input, &button_type, TX_NO_WAIT);

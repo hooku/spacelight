@@ -26,19 +26,6 @@ typedef enum
     DECREASE,
 } GenericAction;
 
-typedef enum
-{
-    CCT,
-    BLINK,
-    BREATHE,
-    ROTATE,
-    LIGHTNING,
-    CCT_DRIFT,
-    FIRE,
-    INDEP,
-    RECEIVER,
-} WorkerStage;
-
 extern void spacelight_worker_tuner(TunerParam *tuner_param, GenericAction action);
 
 extern void spacelight_worker_cct_dim_tuner(GenericAction action);
@@ -63,5 +50,6 @@ extern void spacelight_worker_menu_init(GuiStage gui_stage, GuiStage last_gui_st
 extern void spacelight_worker_menu_tuner(GenericAction action);
 extern GuiStage spacelight_worker_menu_press(GuiStage gui_stage);
 extern uint16_t spacelight_worker_get_menu_cursor();
+extern void spacelight_worker_set_menu_cursor(uint16_t cursor);
 
 #endif // __SPACELIGHT_WORKER_H_

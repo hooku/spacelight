@@ -83,20 +83,20 @@ typedef struct
 } GuiParam;
 
 StageTitleMap stage_title_map[] = {
-    { MAIN_CCT, STR_CCT },
-    { MAIN_BLINK, STR_BLINK },
-    { MAIN_BREATHE, STR_BREATHE },
-    { MAIN_ROTATE, STR_ROTATE },
-    { MAIN_LIGHTNING, STR_LIGHTNING },
-    { MAIN_CCT_DRIFT, STR_CCTDRIFT },
-    { MAIN_FIRE, STR_FIRE },
-    { MAIN_INDEP, STR_INDEP },
+    {MAIN_CCT, STR_CCT},
+    {MAIN_BLINK, STR_BLINK},
+    {MAIN_BREATHE, STR_BREATHE},
+    {MAIN_ROTATE, STR_ROTATE},
+    {MAIN_LIGHTNING, STR_LIGHTNING},
+    {MAIN_CCT_DRIFT, STR_CCTDRIFT},
+    {MAIN_FIRE, STR_FIRE},
+    {MAIN_INDEP, STR_INDEP},
 };
 
 DmxStatusMap dmx_mode_map[] = {
-    { DMX_2CH, STR_2CH },
-    { DMX_8CH, STR_8CH },
-    { DMX_11CH, STR_11CH },
+    {DMX_2CH, STR_2CH},
+    {DMX_8CH, STR_8CH},
+    {DMX_11CH, STR_11CH},
 };
 
 static void draw_text(u8g2_t *u8g2, Rect *pos, const char *str)
@@ -283,7 +283,7 @@ void render_gui_main(u8g2_t *u8g2, GuiStage gui_stage)
         sprintf(gui_param.title_text, "[%d] %-17s",
                 spacelight_worker_get_lampcount(),
                 stage_title_map[gui_stage].title_text);
-        
+
         sprintf(gui_param.status_text, "DMX: %03d  %-10s",
                 spacelight_worker_get_dmxaddr(),
                 dmx_mode_map[spacelight_worker_get_dmx_mode()].status_text);
