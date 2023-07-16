@@ -96,7 +96,7 @@
 #define DMXADDR_MAX 512
 #define DMXADDR_STEP 2
 
-#define LOCKTIME_DEFAULT 60
+#define LOCKTIME_DEFAULT 10 // 60
 #define LOCKTIME_MIN 10
 #define LOCKTIME_MAX 300
 #define LOCKTIME_STEP 1
@@ -155,7 +155,7 @@ typedef enum
     PARAM_LOCKTIME,
     PARAM_DMXMODE,
     PARAM_WIRELSS,
-} SpacelightParamName;
+} SlParaName;
 
 typedef struct
 {
@@ -188,20 +188,20 @@ typedef struct
     TunerParam locktime;
     TunerParam dmxmode;
     TunerParam wireless;
-} SpacelightParam;
+} SlParam;
 
 typedef struct
 {
-    SpacelightParamName name;
+    SlParaName name;
     TunerParam *param;
     char desc[MAX_TEXT_LEN_SHORT];
 } NameParamMap;
 
 typedef struct
 {
-    GuiStage stage;
+    uint16_t stage;
     uint16_t param_count;
-    const SpacelightParamName *name;
+    const SlParaName *name;
 } StageNameMap;
 
 extern const StageNameMap stage_name_map[];

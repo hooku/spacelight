@@ -5,8 +5,6 @@
 
 #include "app_azure_rtos.h"
 
-#include "u8g2.h"
-
 #define VER_HW_MAJOR 1
 #define VER_HW_MINOR 0
 #define VER_BT_MAJOR 1
@@ -15,13 +13,13 @@
 #define VER_SW_MINOR 0
 #define VER_SN "12345678"
 
-#define SPACELIGHT_GUI_STACK_SIZE 1024
-#define SPACELIGHT_WORKER_STACK_SIZE 512
-#define SPACELIGHT_INPUT_STACK_SIZE 512
+#define SL_GUI_STACK_SIZE 1024
+#define SL_WORKER_STACK_SIZE 512
+#define SL_INPUT_STACK_SIZE 512
 
-#define SPACELIGHT_GUI_QUEUE_SIZE 32
-#define SPACELIGHT_WORKER_QUEUE_SIZE 32
-#define SPACELIGHT_INPUT_QUEUE_SIZE 32
+#define SL_GUI_QUEUE_SIZE 32
+#define SL_WORKER_QUEUE_SIZE 32
+#define SL_INPUT_QUEUE_SIZE 32
 
 #define GUI_SCREEN_WIDTH 128
 #define GUI_SCREEN_HEIGHT 64
@@ -35,15 +33,15 @@
 #define MENU_WIRELESS_ITEM_COUNT 2
 #define MENU_VER_ITEM_COUNT 6
 
-#define DEBOUNCE_BUTTON_TICK 50U
-#define DEBOUNCE_TUNER_TICK 10U
-#define DEBOUNCE_REV_TUNER_TICK 20U
+#define DEBOUNCE_BUTTON_MS 250U
+#define DEBOUNCE_TUNER_MS 50U
+#define DEBOUNCE_REV_TUNER_MS 100U
 
 #define CCT_3200K 3200U
 #define CCT_5600K 5600U
 
 /* string const */
-#define STR_UNLOCK "Press Back to unlock"
+#define STR_UNLOCK "Press BACK to unlock"
 
 #define STR_CCT ""
 #define STR_BLINK "Blink"
@@ -58,9 +56,18 @@
 #define STR_8CH "Independent"
 #define STR_11CH "All param"
 
+#define MS_TO_SEC(ms) (ms / 1000)
+#define SEC_TO_MS(ms) (ms * 1000)
+#define MS_TO_TICK(ms) (ms * TX_TIMER_TICKS_PER_SECOND / 1000)
+#define TICK_TO_MS(tick) (tick * 1000 / TX_TIMER_TICKS_PER_SECOND)
+
 #define IS_MAIN_GUI(stage) ((stage >= MAIN_CCT) && (stage <= MAIN_INDEP))
 #define IS_SUB_MENU_CFG(stage) ((stage >= MENU_EFFECT_MODE) && (stage <= CFG_VERSION))
 #define GET_INC_DEC(button) (((button == BTN_DIM_INC) || (button == BTN_CCT_INC)) ? INCREASE : DECREASE)
+
+#define GUI_MSG(stage, msg) ((((uint32_t)stage & 0xFFU) << 8) | ((uint32_t)msg & 0xFFU))
+#define GUI_MSG_STAGE(gui_msg) (((uint32_t)gui_msg >> 8) & 0xFF)
+#define GUI_MSG_MSG(gui_msg) ((uint32_t)gui_msg & 0xFFU)
 
 typedef enum
 {
@@ -74,7 +81,7 @@ typedef enum
     BTN_CCT_INC,
     BTN_CCT_DEC,
     BTN_CCT_PRESS,
-    BTN_UNKNOWN
+    BTN_UNKNOWN,
 } ButtonType;
 
 typedef enum
@@ -87,7 +94,13 @@ typedef enum
     MAIN_CCT_DRIFT,
     MAIN_FIRE,
     MAIN_INDEP,
-    MENU_MAIN,
+    MAIN_END,
+} MainStage;
+
+typedef enum
+{
+    GUI_MAIN,
+    MENU_MAIN = MAIN_END,
     MENU_EFFECT_MODE,
     CFG_LAMP_COUNT,
     CFG_DMX_ADDR,
@@ -100,15 +113,9 @@ typedef enum
 
 typedef enum
 {
-    WORK_CCT,
-    WORK_BLINK,
-    WORK_BREATHE,
-    WORK_ROTATE,
-    WORK_LIGHTNING,
-    WORK_CCT_DRIFT,
-    WORK_FIRE,
-    WORK_INDEP,
-} WorkerStage;
+    MSG_LOCK_UNLOCK_TXT,
+    MSG_NONE,
+} GuiMsg;
 
 typedef enum
 {
@@ -123,14 +130,6 @@ typedef enum
     WIRELESS_OFF,
 } WirelessMode;
 
-typedef struct
-{
-    u8g2_uint_t left;
-    u8g2_uint_t top;
-    u8g2_uint_t right;
-    u8g2_uint_t bottom;
-} Rect;
-
 extern SPI_HandleTypeDef hspi1;
 extern TIM_HandleTypeDef htim2;
 
@@ -138,16 +137,9 @@ extern void spacelight_entry(TX_BYTE_POOL tx_app_byte_pool);
 
 extern void spacelight_controller(ButtonType button_type, void **gui_message, void **worker_message);
 
-extern void spacelight_gui_init();
-extern void spacelight_gui_update(void *gui_message);
+extern void sl_gui_refresh(uint16_t stage, GuiMsg msg);
 
-extern void render_gui_main(u8g2_t *u8g2, GuiStage gui_stage);
-
-extern void init_gui_menu();
-extern void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
-extern void render_gui_dmxaddr(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
-extern void render_gui_lampcount(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
-extern void render_gui_locktime(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
+extern void sl_worker_init();
 
 extern TX_QUEUE qu_input;
 
@@ -162,7 +154,7 @@ inline void spacelight_tim_cb(TIM_HandleTypeDef *htim)
         if (current_sw2 == GPIO_PIN_RESET)
         {
             ULONG current_sw2_tick = tx_time_get();
-            if ((current_sw2_tick - last_sw2_tick) >= DEBOUNCE_BUTTON_TICK)
+            if ((current_sw2_tick - last_sw2_tick) >= MS_TO_TICK(DEBOUNCE_BUTTON_MS))
             {
                 UINT status;
                 ButtonType button_type = BTN_CCT_PRESS;

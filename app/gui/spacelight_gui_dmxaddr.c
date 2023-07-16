@@ -1,3 +1,4 @@
+#include "spacelight_gui.h"
 #include "spacelight_param.h"
 #include "spacelight.h"
 
@@ -22,7 +23,7 @@ void render_gui_dmxaddr(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stag
     u8g2_DrawStr(u8g2, DMXADDR_LEFT - title_width / 2, DMXADDR_TOP_LINE_0, dmxaddr_title);
 
     char dmxaddr_text[MAX_TEXT_LEN_LONG];
-    uint16_t dmxaddr = spacelight_worker_get_new(PARAM_DMXADDR);
+    uint16_t dmxaddr = sl_worker_get_new(PARAM_DMXADDR);
     sprintf(dmxaddr_text, "%d", dmxaddr);
     u8g2_SetFont(u8g2, DMXADDR_LINE_1_FONT);
     u8g2_DrawStr(u8g2, DMXADDR_LEFT, DMXADDR_TOP_LINE_1, dmxaddr_text);

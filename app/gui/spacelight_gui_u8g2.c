@@ -1,3 +1,4 @@
+#include "spacelight_gui.h"
 #include "spacelight.h"
 
 static u8g2_t u8g2;
@@ -52,9 +53,9 @@ uint8_t u8x8_stm32_gpio_and_delay(U8X8_UNUSED u8x8_t *u8x8,
     return 1;
 }
 
-void spacelight_gui_init()
+void sl_gui_init()
 {
-#define SPACELIGHT_CONTRAST 1
+#define SL_CONTRAST 1
 
     u8g2_Setup_ssd1309_128x64_noname0_f(&u8g2, U8G2_R2, u8x8_byte_4wire_hw_spi,
                                         u8x8_stm32_gpio_and_delay);
@@ -62,35 +63,34 @@ void spacelight_gui_init()
                                  // sleep mode after this,
     u8g2_SetPowerSave(&u8g2, 0); // wake up display
 
-    u8g2_SetContrast(&u8g2, SPACELIGHT_CONTRAST);
+    u8g2_SetContrast(&u8g2, SL_CONTRAST);
 
     u8g2_ClearDisplay(&u8g2);
 
     init_gui_menu();
 }
 
-void spacelight_gui_update(void *gui_message)
+void sl_gui_update(uint16_t stage, GuiMsg msg)
 {
-    GuiStage *gui_stage = (GuiStage *)gui_message;
-    static GuiStage last_gui_stage = GUI_UNINITIALIZED;
-    
-    switch (*gui_stage)
+    static uint16_t last_stage = GUI_UNINITIALIZED;
+
+    switch (stage)
     {
     case MENU_MAIN:
     case MENU_EFFECT_MODE:
     case CFG_DMX_MODE:
     case CFG_WIRELESS:
     case CFG_VERSION:
-        render_gui_menu(&u8g2, *gui_stage, last_gui_stage);
+        render_gui_menu(&u8g2, stage, last_stage);
         break;
     case CFG_LAMP_COUNT:
-        render_gui_lampcount(&u8g2, *gui_stage, last_gui_stage);
+        render_gui_lampcount(&u8g2, stage, last_stage);
         break;
     case CFG_DMX_ADDR:
-        render_gui_dmxaddr(&u8g2, *gui_stage, last_gui_stage);
+        render_gui_dmxaddr(&u8g2, stage, last_stage);
         break;
     case CFG_LOCK_TIME:
-        render_gui_locktime(&u8g2, *gui_stage, last_gui_stage);
+        render_gui_locktime(&u8g2, stage, last_stage);
         break;
     case MAIN_CCT:
     case MAIN_BLINK:
@@ -101,9 +101,9 @@ void spacelight_gui_update(void *gui_message)
     case MAIN_FIRE:
     case MAIN_INDEP:
     default:
-        render_gui_main(&u8g2, *gui_stage);
+        render_gui_main(&u8g2, stage, msg);
         break;
     }
-    
-    last_gui_stage = *gui_stage;
+
+    last_stage = stage;
 }

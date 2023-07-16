@@ -3,68 +3,73 @@
 #define TUNER_QUICK_SLIDE_THRESHOLD_COUNT 2
 #define TUNER_QUICK_SLIDE_THRESHOLD_TIME 25
 
-WorkerStage worker_stage = WORK_CCT;
+uint16_t worker_stage = MAIN_CCT;
 
-WorkerStage spacelight_worker_get_stage()
+void sl_worker_init()
+{
+    sl_worker_locktime_init();
+}
+
+uint16_t sl_worker_get_stage()
 {
     return worker_stage;
 }
 
-void spacelight_worker_set_stage(WorkerStage stage)
-{
-    worker_stage = stage;
-}
-
-void spacelight_worker_init(SpacelightParamName name)
-{
-    TunerParam *param = name_param_map[name].param;
-    param->new_value = param->value;
-}
-
-uint16_t spacelight_worker_get(SpacelightParamName name)
+uint16_t sl_worker_get(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     return param->value;
 }
 
-uint16_t spacelight_worker_get_new(SpacelightParamName name)
+uint16_t sl_worker_get_new(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     return param->new_value;
 }
 
-uint16_t spacelight_worker_get_min(SpacelightParamName name)
+uint16_t sl_worker_get_min(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     return param->min;
 }
 
-uint16_t spacelight_worker_get_max(SpacelightParamName name)
+uint16_t sl_worker_get_max(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     return param->max;
 }
 
-void spacelight_worker_set(SpacelightParamName name)
+void sl_worker_set_stage(uint16_t stage)
+{
+    worker_stage = stage;
+}
+
+void sl_worker_sync(SlParaName name)
+{
+    TunerParam *param = name_param_map[name].param;
+    param->new_value = param->value;
+}
+
+void sl_worker_set(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     param->value = param->new_value;
 }
 
-uint16_t spacelight_worker_set_value(SpacelightParamName name, uint16_t value)
+uint16_t sl_worker_set_value(SlParaName name, uint16_t value)
 {
     TunerParam *param = name_param_map[name].param;
     param->value = value;
     param->new_value = param->value;
 }
 
-void spacelight_worker_set_max(SpacelightParamName name, uint16_t value)
+void sl_worker_set_max(SlParaName name, uint16_t value)
 {
     TunerParam *param = name_param_map[name].param;
     param->max = value;
 }
 
-void spacelight_worker_tuner(SpacelightParamName name, GenericAction action)
+void sl_worker_tuner(SlParaName name, GenericAction action)
 {
     TunerParam *param = name_param_map[name].param;
 

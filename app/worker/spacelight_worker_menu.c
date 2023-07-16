@@ -57,24 +57,24 @@ ItemStageMap itemStageMapEffectMode[] = {
 DmxMode dmx_mode = DMX_2CH;
 WirelessMode wireless_mode = WIRELESS_ON;
 
-void spacelight_worker_menu_init(GuiStage gui_stage, GuiStage last_gui_stage, uint8_t item_count)
+void sl_worker_menu_init(GuiStage gui_stage, GuiStage last_gui_stage, uint8_t item_count)
 {
-    spacelight_worker_set_value(PARAM_MENU, MENUMAIN_DEFAULT);
-    spacelight_worker_set_max(PARAM_MENU, item_count - 1);
+    sl_worker_set_value(PARAM_MENU, MENUMAIN_DEFAULT);
+    sl_worker_set_max(PARAM_MENU, item_count - 1);
 }
 
-GuiStage spacelight_worker_menu_press(GuiStage gui_stage)
+GuiStage sl_worker_menu_press(GuiStage gui_stage)
 {
     GuiStage next_gui_stage = MAIN_CCT;
 
     switch (gui_stage)
     {
     case MENU_EFFECT_MODE:
-        next_gui_stage = itemStageMapEffectMode[spacelight_worker_get(*stage_name_map[gui_stage].name)].gui_stage;
+        next_gui_stage = itemStageMapEffectMode[sl_worker_get(*stage_name_map[gui_stage].name)].gui_stage;
         break;
     case CFG_DMX_MODE:
     case CFG_WIRELESS:
-        spacelight_worker_set(*stage_name_map[gui_stage].name);
+        sl_worker_set(*stage_name_map[gui_stage].name);
         next_gui_stage = MENU_MAIN;
         break;
     case CFG_VERSION:
@@ -82,7 +82,7 @@ GuiStage spacelight_worker_menu_press(GuiStage gui_stage)
         break;
     case MENU_MAIN:
     default:
-        next_gui_stage = itemStageMapMain[spacelight_worker_get_new(*stage_name_map[gui_stage].name)].gui_stage;
+        next_gui_stage = itemStageMapMain[sl_worker_get_new(*stage_name_map[gui_stage].name)].gui_stage;
         break;
     }
     return next_gui_stage;

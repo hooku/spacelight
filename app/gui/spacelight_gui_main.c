@@ -1,5 +1,4 @@
-// draw the main gui
-
+#include "spacelight_gui.h"
 #include "spacelight_param.h"
 #include "spacelight.h"
 
@@ -59,7 +58,7 @@ typedef enum
 
 typedef struct
 {
-    GuiStage gui_stage;
+    uint16_t stage;
     char title_text[MAX_TEXT_LEN_LONG];
 } StageTitleMap;
 
@@ -188,9 +187,9 @@ void setup_gui_cct(GuiParam *gui_param)
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = TWO_LINE;
     strcpy(gui_param->l_ctl.text[0], "DIM");
-    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get(PARAM_DIM));
+    sprintf(gui_param->l_ctl.text[1], "%d%%", sl_worker_get(PARAM_DIM));
     strcpy(gui_param->r_ctl.text[0], "CCT");
-    sprintf(gui_param->r_ctl.text[1], "%dK", spacelight_worker_get(PARAM_CCT));
+    sprintf(gui_param->r_ctl.text[1], "%dK", sl_worker_get(PARAM_CCT));
 }
 
 void setup_gui_blink(GuiParam *gui_param)
@@ -198,7 +197,7 @@ void setup_gui_blink(GuiParam *gui_param)
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
     strcpy(gui_param->l_ctl.text[0], "DIM");
-    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get(PARAM_DIM));
+    sprintf(gui_param->l_ctl.text[1], "%d%%", sl_worker_get(PARAM_DIM));
     strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
     strcpy(gui_param->r_ctl.text[1], "6000  1  ");
     strcpy(gui_param->r_ctl.text[2], "Duty     ");
@@ -210,7 +209,7 @@ void setup_gui_breathe(GuiParam *gui_param)
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
     strcpy(gui_param->l_ctl.text[0], "DIM");
-    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get(PARAM_DIM));
+    sprintf(gui_param->l_ctl.text[1], "%d%%", sl_worker_get(PARAM_DIM));
     strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
     strcpy(gui_param->r_ctl.text[1], "6000  1  ");
 }
@@ -220,7 +219,7 @@ void setup_gui_rotate(GuiParam *gui_param)
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
     strcpy(gui_param->l_ctl.text[0], "DIM");
-    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get(PARAM_DIM));
+    sprintf(gui_param->l_ctl.text[1], "%d%%", sl_worker_get(PARAM_DIM));
     strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
     strcpy(gui_param->r_ctl.text[1], "6000  1  ");
     strcpy(gui_param->r_ctl.text[2], "Duty     ");
@@ -232,7 +231,7 @@ void setup_gui_lightning(GuiParam *gui_param)
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
     strcpy(gui_param->l_ctl.text[0], "DIM");
-    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get(PARAM_DIM));
+    sprintf(gui_param->l_ctl.text[1], "%d%%", sl_worker_get(PARAM_DIM));
     strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
     strcpy(gui_param->r_ctl.text[1], "6000  1  ");
     strcpy(gui_param->r_ctl.text[2], "Duty     ");
@@ -244,7 +243,7 @@ void setup_gui_cctdrift(GuiParam *gui_param)
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
     strcpy(gui_param->l_ctl.text[0], "DIM");
-    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get(PARAM_DIM));
+    sprintf(gui_param->l_ctl.text[1], "%d%%", sl_worker_get(PARAM_DIM));
     strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
     strcpy(gui_param->r_ctl.text[1], "6000  1  ");
     strcpy(gui_param->r_ctl.text[2], "Duty     ");
@@ -256,7 +255,7 @@ void setup_gui_fire(GuiParam *gui_param)
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
     strcpy(gui_param->l_ctl.text[0], "DIM");
-    sprintf(gui_param->l_ctl.text[1], "%d%%", spacelight_worker_get(PARAM_DIM));
+    sprintf(gui_param->l_ctl.text[1], "%d%%", sl_worker_get(PARAM_DIM));
     strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
     strcpy(gui_param->r_ctl.text[1], "6000  1  ");
     strcpy(gui_param->r_ctl.text[2], "Duty     ");
@@ -275,32 +274,47 @@ void setup_gui_indep(GuiParam *gui_param)
     strcpy(gui_param->r_ctl.text[2], "#4 025 2600");
 }
 
-void render_gui_main(u8g2_t *u8g2, GuiStage gui_stage)
+static void setup_gui_status(GuiParam *gui_param, uint8_t update_lock_unlock_txt)
+{
+    static uint8_t lock_unlock_txt_shown = 0;
+    if (update_lock_unlock_txt && (!lock_unlock_txt_shown))
+    {
+        strcpy(gui_param->status_text, STR_UNLOCK);
+        lock_unlock_txt_shown = 1;
+    }
+    else
+    {
+        sprintf(gui_param->status_text, "DMX: %03d  %-10s",
+                sl_worker_get(PARAM_DMXADDR),
+                dmx_mode_map[sl_worker_get(PARAM_DMXMODE)].status_text);
+        lock_unlock_txt_shown = 0;
+    }
+}
+
+void render_gui_main(u8g2_t *u8g2, GuiStage stage, GuiMsg msg)
 {
     GuiParam gui_param;
 
-    if ((gui_stage >= MAIN_CCT) && (gui_stage <= MAIN_INDEP))
+    if ((stage >= MAIN_CCT) && (stage <= MAIN_INDEP))
     {
-        if (gui_stage == MAIN_CCT)
+        if (stage == MAIN_CCT)
         {
             sprintf(gui_param.title_text, "[%d]%*c",
-                    spacelight_worker_get(PARAM_LAMPCOUNT),
+                    sl_worker_get(PARAM_LAMPCOUNT),
                     18, ' ');
         }
         else
         {
             sprintf(gui_param.title_text, "[%d] [%s]%*c",
-                    spacelight_worker_get(PARAM_LAMPCOUNT),
-                    stage_title_map[gui_stage].title_text,
-                    15 - strlen(stage_title_map[gui_stage].title_text), ' ');
+                    sl_worker_get(PARAM_LAMPCOUNT),
+                    stage_title_map[stage].title_text,
+                    15 - strlen(stage_title_map[stage].title_text), ' ');
         }
 
-        sprintf(gui_param.status_text, "DMX: %03d  %-10s",
-                spacelight_worker_get(PARAM_DMXADDR),
-                dmx_mode_map[spacelight_worker_get(PARAM_DMXMODE)].status_text);
+        setup_gui_status(&gui_param, (msg == MSG_LOCK_UNLOCK_TXT));
     }
 
-    switch (gui_stage)
+    switch (stage)
     {
     case MAIN_CCT:
         setup_gui_cct(&gui_param);
