@@ -1,3 +1,4 @@
+#include "spacelight_param.h"
 #include "spacelight.h"
 
 #define LAMP_TOTAL 4
@@ -61,17 +62,17 @@ static void draw_lampcount(u8g2_t *u8g2, uint16_t lampcount)
     u8g2_SetFontPosBaseline(u8g2);
     u8g2_SetFont(u8g2, LAMPCOUNT_FONT);
 
-    char lampcount_text[GUI_TEXT_LEN];
+    char lampcount_text[MAX_TEXT_LEN_LONG];
     sprintf(lampcount_text, "%d", lampcount);
 
     u8g2_DrawStr(u8g2, LAMPCOUNT_LEFT, LAMPCOUNT_TOP, lampcount_text);
 }
 
-void render_gui_lampcount(u8g2_t *u8g2)
+void render_gui_lampcount(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage)
 {
     u8g2_ClearBuffer(u8g2);
 
-    uint16_t lampcount = spacelight_worker_get_lampcount_new();
+    uint16_t lampcount = spacelight_worker_get_new(PARAM_LAMPCOUNT);
 
     for (uint16_t i_lamp = 0; i_lamp < LAMP_TOTAL; i_lamp++)
     {

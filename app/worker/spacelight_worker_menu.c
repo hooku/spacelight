@@ -1,10 +1,5 @@
 #include "spacelight_worker.h"
 
-#define MENU_DEFAULT 0
-#define MENU_MIN 0
-#define MENU_MAX MENU_MIN
-#define MENU_STEP 1
-
 typedef enum
 {
     ITEM_CCT_MODE,
@@ -59,79 +54,13 @@ ItemStageMap itemStageMapEffectMode[] = {
     {ITEM_INDEP, MAIN_INDEP},
 };
 
-TunerParam menuParam = {
-    MENU_DEFAULT,
-    MENU_DEFAULT,
-    MENU_MIN,
-    MENU_MAX,
-    MENU_STEP,
-};
-
 DmxMode dmx_mode = DMX_2CH;
 WirelessMode wireless_mode = WIRELESS_ON;
 
-/* DMX Mode */
-DmxMode spacelight_worker_get_dmx_mode()
-{
-    return dmx_mode;
-}
-
-static void spacelight_worker_set_dmx_mode()
-{
-    dmx_mode = menuParam.new_value;
-}
-
-/* Wireless Mode */
-WirelessMode spacelight_worker_get_wireless_mode()
-{
-    return wireless_mode;
-}
-
-static void spacelight_worker_set_wireless_mode()
-{
-    wireless_mode = menuParam.new_value;
-}
-
 void spacelight_worker_menu_init(GuiStage gui_stage, GuiStage last_gui_stage, uint8_t item_count)
 {
-    switch (gui_stage)
-    {
-    case CFG_DMX_MODE:
-        menuParam.value = dmx_mode;
-        break;
-    case CFG_WIRELESS:
-        menuParam.value = wireless_mode;
-        break;
-    default:
-        switch (last_gui_stage)
-        {
-        case CFG_DMX_MODE:
-        case CFG_WIRELESS:
-            break;
-        default:
-            menuParam.value = MENU_DEFAULT;
-            break;
-        }
-        break;
-    }
-    menuParam.new_value = menuParam.value;
-    menuParam.max = item_count - 1;
-}
-
-void spacelight_worker_menu_tuner(GenericAction action)
-{
-    spacelight_worker_tuner(&menuParam, action);
-}
-
-uint16_t spacelight_worker_get_menu_cursor()
-{
-    return menuParam.new_value;
-}
-
-void spacelight_worker_set_menu_cursor(uint16_t cursor)
-{
-    menuParam.value = cursor;
-    menuParam.new_value = menuParam.value;
+    spacelight_worker_set_value(PARAM_MENU, MENUMAIN_DEFAULT);
+    spacelight_worker_set_max(PARAM_MENU, item_count - 1);
 }
 
 GuiStage spacelight_worker_menu_press(GuiStage gui_stage)
@@ -141,14 +70,11 @@ GuiStage spacelight_worker_menu_press(GuiStage gui_stage)
     switch (gui_stage)
     {
     case MENU_EFFECT_MODE:
-        next_gui_stage = itemStageMapEffectMode[menuParam.new_value].gui_stage;
+        next_gui_stage = itemStageMapEffectMode[spacelight_worker_get(*stage_name_map[gui_stage].name)].gui_stage;
         break;
     case CFG_DMX_MODE:
-        spacelight_worker_set_dmx_mode();
-        next_gui_stage = MENU_MAIN;
-        break;
     case CFG_WIRELESS:
-        spacelight_worker_set_wireless_mode();
+        spacelight_worker_set(*stage_name_map[gui_stage].name);
         next_gui_stage = MENU_MAIN;
         break;
     case CFG_VERSION:
@@ -156,7 +82,7 @@ GuiStage spacelight_worker_menu_press(GuiStage gui_stage)
         break;
     case MENU_MAIN:
     default:
-        next_gui_stage = itemStageMapMain[menuParam.new_value].gui_stage;
+        next_gui_stage = itemStageMapMain[spacelight_worker_get_new(*stage_name_map[gui_stage].name)].gui_stage;
         break;
     }
     return next_gui_stage;

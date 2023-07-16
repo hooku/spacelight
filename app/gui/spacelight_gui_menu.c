@@ -1,3 +1,4 @@
+#include "spacelight_param.h"
 #include "spacelight.h"
 
 #define MENU_PADDING_H 5
@@ -16,7 +17,7 @@ typedef struct
     uint8_t cursor;
 } MenuParam;
 
-char menu_main[MENU_MAIN_ITEM_COUNT][GUI_TEXT_LEN] = {
+char menu_main[MENU_MAIN_ITEM_COUNT][MAX_TEXT_LEN_LONG] = {
     {"CCT Mode"},
     {"Effect Mode"},
     {"Lamp Count"},
@@ -28,7 +29,7 @@ char menu_main[MENU_MAIN_ITEM_COUNT][GUI_TEXT_LEN] = {
     {"Exit"},
 };
 
-char menu_effect_mode[MENU_EFFECT_MODE_ITEM_COUNT][GUI_TEXT_LEN] = {
+char menu_effect_mode[MENU_EFFECT_MODE_ITEM_COUNT][MAX_TEXT_LEN_LONG] = {
     {"None"},
     {STR_BLINK},
     {STR_BREATHE},
@@ -39,18 +40,18 @@ char menu_effect_mode[MENU_EFFECT_MODE_ITEM_COUNT][GUI_TEXT_LEN] = {
     {STR_INDEP},
 };
 
-char menu_dmx_mode[MENU_DMX_MODE_ITEM_COUNT][GUI_TEXT_LEN] = {
+char menu_dmx_mode[MENU_DMX_MODE_ITEM_COUNT][MAX_TEXT_LEN_LONG] = {
     {"2Ch-" STR_2CH},
     {"8Ch-" STR_8CH},
     {"11Ch-" STR_11CH},
 };
 
-char menu_wireless[MENU_WIRELESS_ITEM_COUNT][GUI_TEXT_LEN] = {
+char menu_wireless[MENU_WIRELESS_ITEM_COUNT][MAX_TEXT_LEN_LONG] = {
     {"On"},
     {"Off"},
 };
 
-char menu_version[MENU_VER_ITEM_COUNT][GUI_TEXT_LEN] = {
+char menu_version[MENU_VER_ITEM_COUNT][MAX_TEXT_LEN_LONG] = {
     {"COLT LED"},
 };
 
@@ -82,7 +83,7 @@ static void draw_menu(u8g2_t *u8g2, MenuParam *menu_param)
             flags = U8G2_BTN_INV;
 
         uint16_t menu_text_bottom = MENU_PADDING_V + font_height + (font_height + MENU_PADDING_V * 2) * i_item;
-        char *menu = menu_param->menu + GUI_TEXT_LEN * i_item;
+        char *menu = menu_param->menu + MAX_TEXT_LEN_LONG * i_item;
         u8g2_DrawButtonUTF8(u8g2, MENU_PADDING_H, menu_text_bottom, flags, GUI_SCREEN_WIDTH, MENU_PADDING_H, MENU_PADDING_V, menu);
     }
 }
@@ -125,16 +126,16 @@ void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage)
         if (gui_stage != MENU_MAIN)
             last_first_visible = 0;
         spacelight_worker_menu_init(gui_stage, last_gui_stage, menu_param.item_count);
-        if ((gui_stage == MENU_MAIN) && (!IS_MAIN_GUI(last_gui_stage)))
+        if ((gui_stage == MENU_MAIN) && (IS_SUB_MENU_CFG(last_gui_stage)))
         {
             /* enter main menu from sub memu exit */
             last_first_visible = menu_main_last_first_visible;
             menu_param.cursor = menu_main_last_cursor;
-            spacelight_worker_set_menu_cursor(menu_param.cursor);
+            spacelight_worker_set_value(PARAM_MENU, menu_param.cursor);
         }
     }
 
-    menu_param.cursor = spacelight_worker_get_menu_cursor();
+    menu_param.cursor = spacelight_worker_get_new(*stage_name_map[gui_stage].name);
     if (menu_param.cursor < last_first_visible)
     {
         last_first_visible = menu_param.cursor;
@@ -148,11 +149,11 @@ void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage)
     {
         /* remember main menu focus */
         menu_main_last_first_visible = last_first_visible;
-        menu_main_last_cursor = spacelight_worker_get_menu_cursor();
+        menu_main_last_cursor = spacelight_worker_get_new(PARAM_MENU);
     }
 
     menu_param.first_visible = last_first_visible;
-    menu_param.menu += GUI_TEXT_LEN * last_first_visible;
+    menu_param.menu += MAX_TEXT_LEN_LONG * last_first_visible;
     draw_menu(u8g2, &menu_param);
     u8g2_SendBuffer(u8g2);
 }

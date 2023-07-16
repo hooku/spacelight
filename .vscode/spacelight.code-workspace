@@ -12,7 +12,8 @@
             "app_azure_rtos_config.h": "c",
             "tx_api.h": "c",
             "tx_port.h": "c",
-            "main.h": "c"
+            "main.h": "c",
+            "spacelight_worker.h": "c"
         }
     }
 }

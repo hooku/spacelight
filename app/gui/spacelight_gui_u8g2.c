@@ -84,13 +84,13 @@ void spacelight_gui_update(void *gui_message)
         render_gui_menu(&u8g2, *gui_stage, last_gui_stage);
         break;
     case CFG_LAMP_COUNT:
-        render_gui_lampcount(&u8g2);
+        render_gui_lampcount(&u8g2, *gui_stage, last_gui_stage);
         break;
     case CFG_DMX_ADDR:
-        render_gui_dmxaddr(&u8g2);
+        render_gui_dmxaddr(&u8g2, *gui_stage, last_gui_stage);
         break;
     case CFG_LOCK_TIME:
-        render_gui_locktime(&u8g2);
+        render_gui_locktime(&u8g2, *gui_stage, last_gui_stage);
         break;
     case MAIN_CCT:
     case MAIN_BLINK:

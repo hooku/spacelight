@@ -11,7 +11,7 @@ echo project generate>> %cubemx_script%
 echo exit>> %cubemx_script%
 
 "C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\STM32CubeMX.exe" -q %cubemx_script%
-timeout 45
+timeout 50
 
 Z:
 cd %generate_dir%

@@ -1,48 +1,88 @@
 #include "spacelight_worker.h"
 
-#define TUNER_QUICK_SLIDE_THRESHOLD_COUNT 3
-#define TUNER_QUICK_SLIDE_THRESHOLD_TIME 15
-
-typedef struct
-{
-    WorkerStage worker_stage;
-    GuiStage gui_stage;
-} WorkerGuiStageMap;
-
-WorkerGuiStageMap work_gui_stage_map[] = {
-    {WORK_CCT, MAIN_CCT},
-    {WORK_BLINK, MAIN_BLINK},
-    {WORK_BREATHE, MAIN_BREATHE},
-    {WORK_ROTATE, MAIN_ROTATE},
-    {WORK_LIGHTNING, MAIN_LIGHTNING},
-    {WORK_CCT_DRIFT, MAIN_CCT_DRIFT},
-    {WORK_FIRE, MAIN_FIRE},
-    {WORK_INDEP, MAIN_INDEP},
-};
+#define TUNER_QUICK_SLIDE_THRESHOLD_COUNT 2
+#define TUNER_QUICK_SLIDE_THRESHOLD_TIME 25
 
 WorkerStage worker_stage = WORK_CCT;
 
-void spacelight_worker()
+WorkerStage spacelight_worker_get_stage()
 {
+    return worker_stage;
 }
 
-void spacelight_worker_tuner(TunerParam *tuner_param, GenericAction action)
+void spacelight_worker_set_stage(WorkerStage stage)
 {
-    uint16_t new_value = 0;
-    uint16_t step = tuner_param->step;
+    worker_stage = stage;
+}
 
-    static TunerParam *last_tuner_param = NULL;
+void spacelight_worker_init(SpacelightParamName name)
+{
+    TunerParam *param = name_param_map[name].param;
+    param->new_value = param->value;
+}
+
+uint16_t spacelight_worker_get(SpacelightParamName name)
+{
+    TunerParam *param = name_param_map[name].param;
+    return param->value;
+}
+
+uint16_t spacelight_worker_get_new(SpacelightParamName name)
+{
+    TunerParam *param = name_param_map[name].param;
+    return param->new_value;
+}
+
+uint16_t spacelight_worker_get_min(SpacelightParamName name)
+{
+    TunerParam *param = name_param_map[name].param;
+    return param->min;
+}
+
+uint16_t spacelight_worker_get_max(SpacelightParamName name)
+{
+    TunerParam *param = name_param_map[name].param;
+    return param->max;
+}
+
+void spacelight_worker_set(SpacelightParamName name)
+{
+    TunerParam *param = name_param_map[name].param;
+    param->value = param->new_value;
+}
+
+uint16_t spacelight_worker_set_value(SpacelightParamName name, uint16_t value)
+{
+    TunerParam *param = name_param_map[name].param;
+    param->value = value;
+    param->new_value = param->value;
+}
+
+void spacelight_worker_set_max(SpacelightParamName name, uint16_t value)
+{
+    TunerParam *param = name_param_map[name].param;
+    param->max = value;
+}
+
+void spacelight_worker_tuner(SpacelightParamName name, GenericAction action)
+{
+    TunerParam *param = name_param_map[name].param;
+
+    uint16_t new_value = 0;
+    uint16_t step = param->step;
+
+    static TunerParam *last_param = NULL;
     static GenericAction last_action;
     static ULONG last_tuner_tick = 0;
     static uint8_t last_tuner_count = 0;
 
     ULONG current_tuner_tick = tx_time_get();
 
-    if ((tuner_param == last_tuner_param) && (action == last_action) &&
+    if ((param == last_param) && (action == last_action) &&
         (current_tuner_tick - last_tuner_tick < TUNER_QUICK_SLIDE_THRESHOLD_TIME))
     {
         if (last_tuner_count >= TUNER_QUICK_SLIDE_THRESHOLD_COUNT)
-            step *= last_tuner_count;
+            step *= (last_tuner_count + 1);
         last_tuner_count++;
     }
     if (current_tuner_tick - last_tuner_tick > TUNER_QUICK_SLIDE_THRESHOLD_TIME)
@@ -50,27 +90,27 @@ void spacelight_worker_tuner(TunerParam *tuner_param, GenericAction action)
         last_tuner_count = 0;
     }
     last_tuner_tick = current_tuner_tick;
-    last_tuner_param = tuner_param;
+    last_param = param;
     last_action = action;
 
     switch (action)
     {
 
     case DECREASE:
-        if (tuner_param->new_value < step)
-            tuner_param->new_value = tuner_param->min;
+        if (param->new_value < step)
+            param->new_value = param->min;
         else
-            new_value = tuner_param->new_value - step;
+            new_value = param->new_value - step;
         break;
     case INCREASE:
     default:
-        new_value = tuner_param->new_value + step;
+        new_value = param->new_value + step;
         break;
     }
-    if ((new_value <= tuner_param->max) && (new_value >= tuner_param->min))
-        tuner_param->new_value = new_value;
-    else if (new_value > tuner_param->max)
-        tuner_param->new_value = tuner_param->max;
-    else if (new_value < tuner_param->min)
-        tuner_param->new_value = tuner_param->min;
+    if ((new_value <= param->max) && (new_value >= param->min))
+        param->new_value = new_value;
+    else if (new_value > param->max)
+        param->new_value = param->max;
+    else if (new_value < param->min)
+        param->new_value = param->min;
 }

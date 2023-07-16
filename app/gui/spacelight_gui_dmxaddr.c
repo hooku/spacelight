@@ -1,3 +1,4 @@
+#include "spacelight_param.h"
 #include "spacelight.h"
 
 #define DMXADDR_BOUNDBOX (GUI_SCREEN_HEIGHT / 2)
@@ -9,7 +10,7 @@
 #define DMXADDR_LINE_0_FONT u8g2_font_pxplusibmvga8_tr
 #define DMXADDR_LINE_1_FONT u8g2_font_crox4h_tr
 
-void render_gui_dmxaddr(u8g2_t *u8g2)
+void render_gui_dmxaddr(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage)
 {
     u8g2_ClearBuffer(u8g2);
 
@@ -20,8 +21,8 @@ void render_gui_dmxaddr(u8g2_t *u8g2)
     u8g2_uint_t title_width = u8g2_GetStrWidth(u8g2, dmxaddr_title);
     u8g2_DrawStr(u8g2, DMXADDR_LEFT - title_width / 2, DMXADDR_TOP_LINE_0, dmxaddr_title);
 
-    char dmxaddr_text[GUI_TEXT_LEN];
-    uint16_t dmxaddr = spacelight_worker_get_dmxaddr_new();
+    char dmxaddr_text[MAX_TEXT_LEN_LONG];
+    uint16_t dmxaddr = spacelight_worker_get_new(PARAM_DMXADDR);
     sprintf(dmxaddr_text, "%d", dmxaddr);
     u8g2_SetFont(u8g2, DMXADDR_LINE_1_FONT);
     u8g2_DrawStr(u8g2, DMXADDR_LEFT, DMXADDR_TOP_LINE_1, dmxaddr_text);

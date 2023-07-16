@@ -25,7 +25,9 @@
 
 #define GUI_SCREEN_WIDTH 128
 #define GUI_SCREEN_HEIGHT 64
-#define GUI_TEXT_LEN 32
+
+#define MAX_TEXT_LEN_LONG 32
+#define MAX_TEXT_LEN_SHORT 16
 
 #define MENU_MAIN_ITEM_COUNT 9
 #define MENU_EFFECT_MODE_ITEM_COUNT 8
@@ -37,6 +39,10 @@
 #define DEBOUNCE_TUNER_TICK 10U
 #define DEBOUNCE_REV_TUNER_TICK 20U
 
+#define CCT_3200K 3200U
+#define CCT_5600K 5600U
+
+/* string const */
 #define STR_UNLOCK "Press Back to unlock"
 
 #define STR_CCT ""
@@ -53,6 +59,8 @@
 #define STR_11CH "All param"
 
 #define IS_MAIN_GUI(stage) ((stage >= MAIN_CCT) && (stage <= MAIN_INDEP))
+#define IS_SUB_MENU_CFG(stage) ((stage >= MENU_EFFECT_MODE) && (stage <= CFG_VERSION))
+#define GET_INC_DEC(button) (((button == BTN_DIM_INC) || (button == BTN_CCT_INC)) ? INCREASE : DECREASE)
 
 typedef enum
 {
@@ -137,10 +145,9 @@ extern void render_gui_main(u8g2_t *u8g2, GuiStage gui_stage);
 
 extern void init_gui_menu();
 extern void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
-
-extern void render_gui_dmxaddr(u8g2_t *u8g2);
-extern void render_gui_lampcount(u8g2_t *u8g2);
-extern void render_gui_locktime(u8g2_t *u8g2);
+extern void render_gui_dmxaddr(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
+extern void render_gui_lampcount(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
+extern void render_gui_locktime(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
 
 extern TX_QUEUE qu_input;
 
