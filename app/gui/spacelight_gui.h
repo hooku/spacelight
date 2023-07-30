@@ -20,6 +20,7 @@ extern void render_gui_main(u8g2_t *u8g2, GuiStage gui_stage, GuiMsg msg);
 
 extern void init_gui_menu();
 extern void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
+
 extern void render_gui_dmxaddr(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
 extern void render_gui_lampcount(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);
 extern void render_gui_locktime(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage);

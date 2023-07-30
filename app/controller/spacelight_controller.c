@@ -1,6 +1,4 @@
 #include "../worker/spacelight_worker.h"
-
-#include "spacelight.h"
 #include "spacelight_param.h"
 
 typedef struct
@@ -9,9 +7,9 @@ typedef struct
     void (*func)(ButtonType btn_type, void **stage, void **worker_message);
 } StageControllerMap;
 
-void sl_controller_main(ButtonType btn_type, void **stage, void **worker_message);
-void sl_controller_generic(ButtonType btn_type, void **stage, void **worker_message);
-void sl_controller_menu(ButtonType btn_type, void **stage, void **worker_message);
+static void sl_controller_main(ButtonType btn_type, void **stage, void **worker_message);
+static void sl_controller_generic(ButtonType btn_type, void **stage, void **worker_message);
+static void sl_controller_menu(ButtonType btn_type, void **stage, void **worker_message);
 
 StageControllerMap stage_controller_map[] = {
     {MAIN_CCT, sl_controller_main},
@@ -49,7 +47,7 @@ static void set_focus_next()
     focus_index = (focus_index % stage_name_map[gui_stage].param_count) + 1;
 }
 
-void sl_controller_main(ButtonType btn_type, void **stage, void **worker_message)
+static void sl_controller_main(ButtonType btn_type, void **stage, void **worker_message)
 {
 #define IS_BLINK_INDEP_CCT(name)                                          \
     ((name >= PARAM_CCT_DRIFT_CCT1) && (name <= PARAM_CCT_DRIFT_CCT1)) || \
@@ -96,7 +94,7 @@ void sl_controller_main(ButtonType btn_type, void **stage, void **worker_message
     *stage = (void *)&gui_stage;
 }
 
-void sl_controller_generic(ButtonType btn_type, void **stage, void **worker_message)
+static void sl_controller_generic(ButtonType btn_type, void **stage, void **worker_message)
 {
     SlParaName focus = *stage_name_map[gui_stage].name;
     switch (btn_type)
@@ -130,7 +128,7 @@ void sl_controller_generic(ButtonType btn_type, void **stage, void **worker_mess
     *stage = (void *)&gui_stage;
 }
 
-void sl_controller_menu(ButtonType btn_type, void **stage, void **worker_message)
+static void sl_controller_menu(ButtonType btn_type, void **stage, void **worker_message)
 {
     SlParaName focus = *stage_name_map[gui_stage].name;
     switch (btn_type)

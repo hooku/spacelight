@@ -1,10 +1,9 @@
 #include "spacelight_gui.h"
-#include "spacelight.h"
 
 static u8g2_t u8g2;
 
-uint8_t u8x8_byte_4wire_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int,
-                               void *arg_ptr)
+static uint8_t u8x8_byte_4wire_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int,
+                                      void *arg_ptr)
 {
     switch (msg)
     {
@@ -28,9 +27,9 @@ uint8_t u8x8_byte_4wire_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int,
     return 1;
 }
 
-uint8_t u8x8_stm32_gpio_and_delay(U8X8_UNUSED u8x8_t *u8x8,
-                                  uint8_t msg, uint8_t arg_int,
-                                  U8X8_UNUSED void *arg_ptr)
+static uint8_t u8x8_stm32_gpio_and_delay(U8X8_UNUSED u8x8_t *u8x8,
+                                         uint8_t msg, uint8_t arg_int,
+                                         U8X8_UNUSED void *arg_ptr)
 {
     switch (msg)
     {

@@ -1,6 +1,6 @@
+#include "../worker/spacelight_worker.h"
 #include "spacelight_gui.h"
 #include "spacelight_param.h"
-#include "spacelight.h"
 
 /*
     title bar (number of head + title)
@@ -99,12 +99,50 @@ DmxStatusMap dmx_mode_map[] = {
     {DMX_11CH, STR_11CH},
 };
 
-static void draw_text(u8g2_t *u8g2, Rect *pos, const char *str)
+static int16_t get_highlight_text(const char *str, char *highlight)
+{
+    int16_t highlight_start = -1;
+    bool highlight_end = false;
+    for (int i_ch = 0; (i_ch < MAX_TEXT_LEN_LONG) && (str[i_ch] != 0); i_ch++)
+    {
+        if (str[i_ch] == '\2') /* start of text */
+            highlight_start = i_ch;
+        if (highlight_start >= 0)
+        {
+            if (str[i_ch] == '\3') /* end of text */
+                highlight_end = true;
+
+            if (!highlight_end)
+                highlight[i_ch - highlight_start] = str[i_ch];
+        }
+    }
+
+    return highlight_start;
+}
+
+/* Draw text on screen
+ *
+ * @param u8g2 u8g2 handle ptr
+ * @param pos Text region rectangle
+ * @param str Text to draw, highlight
+ */
+static void draw_text(u8g2_t *u8g2, Rect *pos, char *str)
 {
     u8g2_uint_t str_width = u8g2_GetStrWidth(u8g2, str);
     u8g2_uint_t center_x = pos->left + (pos->right - pos->left) / 2;
-
     u8g2_DrawStr(u8g2, center_x - str_width / 2, pos->bottom, str);
+
+    /* draw high light text over normal text */
+    char highlight_text[MAX_TEXT_LEN_LONG] = {0};
+    int16_t highlight_start = get_highlight_text(str, highlight_text);
+    if (highlight_start >= 0)
+    {
+        u8g2_SetDrawColor(u8g2, 0);
+        str[highlight_start] = 0;
+        u8g2_uint_t hightlight_left_width = u8g2_GetStrWidth(u8g2, str);
+        u8g2_DrawStr(u8g2, center_x - str_width / 2 + hightlight_left_width, pos->bottom, highlight_text);
+        u8g2_SetDrawColor(u8g2, 1);
+    }
 }
 
 static void draw_ctl(u8g2_t *u8g2, DrawCtlParam *ctl, Rect *pos)
@@ -139,7 +177,7 @@ static void draw_ctl(u8g2_t *u8g2, DrawCtlParam *ctl, Rect *pos)
 
         Rect font_pos = {
             pos->left, pos->top + text_gap * i_line,
-            pos->right, pos->top + text_gap / 2 + (u8g2_GetAscent(u8g2) - u8g2_GetDescent(u8g2)) / 2 + text_gap * i_line};
+            pos->right, pos->top + text_gap * i_line + text_gap / 2 + (u8g2_GetAscent(u8g2) - u8g2_GetDescent(u8g2)) / 2};
         draw_text(u8g2, &font_pos, ctl->text[i_line]);
     }
 }
@@ -182,7 +220,7 @@ static void draw_main(u8g2_t *u8g2, GuiParam *gui_param)
     draw_ctl(u8g2, &gui_param->r_ctl, &r_control_pos);
 }
 
-void setup_gui_cct(GuiParam *gui_param)
+static void setup_gui_cct(GuiParam *gui_param)
 {
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = TWO_LINE;
@@ -192,7 +230,7 @@ void setup_gui_cct(GuiParam *gui_param)
     sprintf(gui_param->r_ctl.text[1], "%dK", sl_worker_get(PARAM_CCT));
 }
 
-void setup_gui_blink(GuiParam *gui_param)
+static void setup_gui_blink(GuiParam *gui_param)
 {
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
@@ -204,7 +242,7 @@ void setup_gui_blink(GuiParam *gui_param)
     strcpy(gui_param->r_ctl.text[3], "46       ");
 }
 
-void setup_gui_breathe(GuiParam *gui_param)
+static void setup_gui_breathe(GuiParam *gui_param)
 {
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
@@ -214,19 +252,7 @@ void setup_gui_breathe(GuiParam *gui_param)
     strcpy(gui_param->r_ctl.text[1], "6000  1  ");
 }
 
-void setup_gui_rotate(GuiParam *gui_param)
-{
-    gui_param->l_ctl.draw_mode = TWO_LINE;
-    gui_param->r_ctl.draw_mode = FOUR_LINE;
-    strcpy(gui_param->l_ctl.text[0], "DIM");
-    sprintf(gui_param->l_ctl.text[1], "%d%%", sl_worker_get(PARAM_DIM));
-    strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
-    strcpy(gui_param->r_ctl.text[1], "6000  1  ");
-    strcpy(gui_param->r_ctl.text[2], "Duty     ");
-    strcpy(gui_param->r_ctl.text[3], "46       ");
-}
-
-void setup_gui_lightning(GuiParam *gui_param)
+static void setup_gui_rotate(GuiParam *gui_param)
 {
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
@@ -238,7 +264,7 @@ void setup_gui_lightning(GuiParam *gui_param)
     strcpy(gui_param->r_ctl.text[3], "46       ");
 }
 
-void setup_gui_cctdrift(GuiParam *gui_param)
+static void setup_gui_lightning(GuiParam *gui_param)
 {
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
@@ -250,7 +276,7 @@ void setup_gui_cctdrift(GuiParam *gui_param)
     strcpy(gui_param->r_ctl.text[3], "46       ");
 }
 
-void setup_gui_fire(GuiParam *gui_param)
+static void setup_gui_cctdrift(GuiParam *gui_param)
 {
     gui_param->l_ctl.draw_mode = TWO_LINE;
     gui_param->r_ctl.draw_mode = FOUR_LINE;
@@ -262,7 +288,19 @@ void setup_gui_fire(GuiParam *gui_param)
     strcpy(gui_param->r_ctl.text[3], "46       ");
 }
 
-void setup_gui_indep(GuiParam *gui_param)
+static void setup_gui_fire(GuiParam *gui_param)
+{
+    gui_param->l_ctl.draw_mode = TWO_LINE;
+    gui_param->r_ctl.draw_mode = FOUR_LINE;
+    strcpy(gui_param->l_ctl.text[0], "DIM");
+    sprintf(gui_param->l_ctl.text[1], "%d%%", sl_worker_get(PARAM_DIM));
+    strcpy(gui_param->r_ctl.text[0], "CCT   Spd");
+    strcpy(gui_param->r_ctl.text[1], "6000  1  ");
+    strcpy(gui_param->r_ctl.text[2], "Duty     ");
+    strcpy(gui_param->r_ctl.text[3], "46       ");
+}
+
+static void setup_gui_indep(GuiParam *gui_param)
 {
     gui_param->l_ctl.draw_mode = THREE_LINE;
     gui_param->r_ctl.draw_mode = THREE_LINE;
@@ -345,14 +383,4 @@ void render_gui_main(u8g2_t *u8g2, GuiStage stage, GuiMsg msg)
     }
     draw_main(u8g2, &gui_param);
     u8g2_SendBuffer(u8g2);
-}
-
-int _write(int file, char *ptr, int len)
-{
-    int DataIdx;
-    for (DataIdx = 0; DataIdx < len; DataIdx++)
-    {
-        __io_putchar(*ptr++);
-    }
-    return len;
 }

@@ -1,6 +1,5 @@
 #include "spacelight_gui.h"
 #include "spacelight_param.h"
-#include "spacelight.h"
 
 #define MENU_PADDING_H 5
 #define MENU_PADDING_V 1

@@ -23,8 +23,8 @@ extern void sl_worker_set_max(SlParaName name, uint16_t value);
 
 extern void sl_worker_tuner(SlParaName name, GenericAction action);
 
+/* menu */
 extern void sl_worker_menu_init(GuiStage gui_stage, GuiStage last_gui_stage, uint8_t item_count);
-extern void sl_worker_menu_tuner(GenericAction action);
 extern GuiStage sl_worker_menu_press(GuiStage gui_stage);
 
 /* locktime */
@@ -32,6 +32,6 @@ extern void sl_worker_locktime_apply();
 extern void sl_worker_locktime_init();
 extern void sl_worker_locktime_reset();
 extern void sl_worker_locktime_unlock();
-extern uint8_t sl_worker_locktime_is_locked();
+extern bool sl_worker_locktime_is_locked();
 
 #endif // __SPACELIGHT_WORKER_H_

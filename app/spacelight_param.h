@@ -1,9 +1,7 @@
-#ifndef __SPACELIGHT_PARAM_DEFAULT_H_
-#define __SPACELIGHT_PARAM_DEFAULT_H_
+#ifndef __SPACELIGHT_PARAM_H_
+#define __SPACELIGHT_PARAM_H_
 
 #include "spacelight.h"
-
-#include <stdint.h>
 
 /* tuner setting */
 #define DIM_DEFAULT 12
@@ -207,4 +205,4 @@ typedef struct
 extern const StageNameMap stage_name_map[];
 extern const NameParamMap name_param_map[];
 
-#endif // __SPACELIGHT_PARAM_DEFAULT_H_
+#endif // __SPACELIGHT_PARAM_H_

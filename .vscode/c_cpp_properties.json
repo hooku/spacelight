@@ -21,7 +21,16 @@
                 "__ICCARM__=1",
                 "TX_INCLUDE_USER_DEFINE_FILE",
                 "USE_HAL_DRIVER",
-                "STM32F407xx"
+                "STM32F407xx",
+                "USE_FULL_ASSERT",
+                "__INT8_T_TYPE__=char",
+                "__UINT8_T_TYPE__=unsigned char",
+                "__INT16_T_TYPE__=short",
+                "__UINT16_T_TYPE__=unsigned short",
+                "__INT32_T_TYPE__=int",
+                "__UINT32_T_TYPE__=unsigned int",
+                "__INT64_T_TYPE__=long long",
+                "__UINT64_T_TYPE__=unsigned long long"
             ],
             "compilerPath": "C:\\Program Files\\LLVM\\bin\\clang.exe",
             "cStandard": "c17",

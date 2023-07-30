@@ -5,6 +5,9 @@
 
 #include "app_azure_rtos.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #define VER_HW_MAJOR 1
 #define VER_HW_MINOR 0
 #define VER_BT_MAJOR 1
@@ -133,18 +136,19 @@ typedef enum
 extern SPI_HandleTypeDef hspi1;
 extern TIM_HandleTypeDef htim2;
 
-extern void spacelight_entry(TX_BYTE_POOL tx_app_byte_pool);
+/* controller */
+extern void sl_controller(ButtonType button_type, void **gui_message, void **worker_message);
 
-extern void spacelight_controller(ButtonType button_type, void **gui_message, void **worker_message);
-
+/* handler */
+extern void sl_entry(TX_BYTE_POOL tx_app_byte_pool);
 extern void sl_gui_refresh(uint16_t stage, GuiMsg msg);
 
-extern void sl_worker_init();
-
 extern TX_QUEUE qu_input;
-
 extern GPIO_PinState last_sw2;
 extern ULONG last_sw2_tick;
+
+/* worker */
+extern void sl_worker_init();
 
 inline void spacelight_tim_cb(TIM_HandleTypeDef *htim)
 {

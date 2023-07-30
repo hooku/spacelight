@@ -63,7 +63,7 @@ void sl_worker_locktime_unlock()
     sl_worker_locktime_reset();
 }
 
-uint8_t sl_worker_locktime_is_locked()
+bool sl_worker_locktime_is_locked()
 {
     return (sm_locktime == SM_LOCK);
 }

@@ -77,7 +77,7 @@ void sl_gui_refresh(uint16_t stage, GuiMsg msg)
     assert_param(status == TX_SUCCESS);
 }
 
-void spacelight_entry(TX_BYTE_POOL tx_app_byte_pool)
+void sl_entry(TX_BYTE_POOL tx_app_byte_pool)
 {
     void *ptr;
 
@@ -194,4 +194,14 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
     ButtonType btn_type = BTN_DIM_PRESS;
     status = tx_queue_send(&qu_input, &btn_type, TX_NO_WAIT);
     assert_param(status == TX_SUCCESS);
+}
+
+int _write(int file, char *ptr, int len)
+{
+    int DataIdx;
+    for (DataIdx = 0; DataIdx < len; DataIdx++)
+    {
+        __io_putchar(*ptr++);
+    }
+    return len;
 }

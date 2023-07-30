@@ -1,6 +1,5 @@
 #include "spacelight_gui.h"
 #include "spacelight_param.h"
-#include "spacelight.h"
 
 #define LAMP_TOTAL 4
 #define LAMP_BOUNDBOX (GUI_SCREEN_HEIGHT / 2)

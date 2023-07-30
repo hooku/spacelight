@@ -1,6 +1,5 @@
 #include "spacelight_gui.h"
 #include "spacelight_param.h"
-#include "spacelight.h"
 
 #define DMXADDR_BOUNDBOX (GUI_SCREEN_HEIGHT / 2)
 
