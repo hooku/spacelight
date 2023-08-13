@@ -100,7 +100,6 @@ void sl_worker_tuner(SlParaName name, GenericAction action)
 
     switch (action)
     {
-
     case DECREASE:
         if (param->new_value < step)
             param->new_value = param->min;

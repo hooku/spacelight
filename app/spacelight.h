@@ -100,6 +100,7 @@ typedef enum
     MAIN_END,
 } MainStage;
 
+/* GuiStage extends MainStage */
 typedef enum
 {
     GUI_MAIN,

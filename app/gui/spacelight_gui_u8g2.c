@@ -69,6 +69,12 @@ void sl_gui_init()
     init_gui_menu();
 }
 
+void sl_gui_clear()
+{
+    u8g2_ClearBuffer(&u8g2);
+    u8g2_SetFontPosBaseline(&u8g2);
+}
+
 void sl_gui_update(uint16_t stage, GuiMsg msg)
 {
     static uint16_t last_stage = GUI_UNINITIALIZED;

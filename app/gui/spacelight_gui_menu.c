@@ -66,9 +66,6 @@ void init_gui_menu()
 
 static void draw_menu(u8g2_t *u8g2, MenuParam *menu_param)
 {
-    u8g2_ClearBuffer(u8g2);
-
-    u8g2_SetFontPosBaseline(u8g2);
     u8g2_SetFont(u8g2, u8g2_font_pxplusibmvga8_tr);
     uint8_t font_height = u8g2_GetAscent(u8g2) - u8g2_GetDescent(u8g2);
 
@@ -154,6 +151,7 @@ void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage)
 
     menu_param.first_visible = last_first_visible;
     menu_param.menu += MAX_TEXT_LEN_LONG * last_first_visible;
+    sl_gui_clear();
     draw_menu(u8g2, &menu_param);
     u8g2_SendBuffer(u8g2);
 }

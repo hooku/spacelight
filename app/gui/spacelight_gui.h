@@ -14,6 +14,7 @@ typedef struct
 } Rect;
 
 extern void sl_gui_init();
+extern void sl_gui_clear();
 extern void sl_gui_update(uint16_t stage, GuiMsg msg);
 
 extern void render_gui_main(u8g2_t *u8g2, GuiStage gui_stage, GuiMsg msg);
