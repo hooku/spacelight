@@ -96,25 +96,39 @@ DmxStatusMap dmx_mode_map[] = {
     {DMX_11CH, STR_11CH},
 };
 
+extern SlParaName get_cursor();
+
+static void get_visible_text(const char *str, char *visible_text)
+{
+    for (int i_ch = 0, i_visible = 0; (i_ch < MAX_TEXT_LEN_LONG) && (str[i_ch] != 0); i_ch++)
+    {
+        if (str[i_ch] >= '\040') /* space char */
+            visible_text[i_visible++] = str[i_ch];
+    }
+}
+
 static int16_t get_highlight_text(const char *str, char *highlight)
 {
-    int16_t highlight_start = -1;
-    bool highlight_end = false;
-    for (int i_ch = 0; (i_ch < MAX_TEXT_LEN_LONG) && (str[i_ch] != 0); i_ch++)
+    int16_t visible_ch_count = 0;
+    bool highlight_found = false;
+    for (int i_ch = 0, i_highlight = 0; (i_ch < MAX_TEXT_LEN_LONG) && (str[i_ch] != 0); i_ch++)
     {
-        if (str[i_ch] == '\002') /* start of text */
-            highlight_start = i_ch;
-        if (highlight_start >= 0)
+        if (highlight_found)
         {
             if (str[i_ch] == '\003') /* end of text */
-                highlight_end = true;
+                break;
 
-            if (!highlight_end)
-                highlight[i_ch - highlight_start] = str[i_ch];
+            highlight[i_highlight++] = str[i_ch];
         }
+        else
+        {
+            visible_ch_count += (str[i_ch] >= '\040') ? 1 : 0;
+        }
+        if (str[i_ch] == '\002') /* start of text */
+            highlight_found = true;
     }
 
-    return highlight_start;
+    return highlight_found ? visible_ch_count : -1;
 }
 
 /* Draw text on screen
@@ -125,20 +139,22 @@ static int16_t get_highlight_text(const char *str, char *highlight)
  */
 static void draw_text(u8g2_t *u8g2, Rect *pos, char *str)
 {
+    char visible_text[MAX_TEXT_LEN_LONG] = {0};
+    get_visible_text(str, visible_text);
+
     u8g2_SetFontMode(u8g2, 0);
-    u8g2_uint_t str_width = u8g2_GetStrWidth(u8g2, str);
+    u8g2_uint_t str_width = u8g2_GetStrWidth(u8g2, visible_text);
     u8g2_uint_t center_x = pos->left + (pos->right - pos->left) / 2;
-    u8g2_DrawStr(u8g2, center_x - str_width / 2, pos->bottom, str);
+    u8g2_DrawStr(u8g2, center_x - str_width / 2, pos->bottom, visible_text);
 
     /* draw high light text over normal text */
     char highlight_text[MAX_TEXT_LEN_LONG] = {0};
     int16_t highlight_start = get_highlight_text(str, highlight_text);
-    // int16_t highlight_start = 1;
     if (highlight_start >= 0)
     {
         u8g2_SetDrawColor(u8g2, 0);
-        str[highlight_start] = 0;
-        u8g2_uint_t hightlight_left_width = u8g2_GetStrWidth(u8g2, str);
+        visible_text[highlight_start] = 0;
+        u8g2_uint_t hightlight_left_width = u8g2_GetStrWidth(u8g2, visible_text);
         u8g2_DrawStr(u8g2, center_x - str_width / 2 + hightlight_left_width, pos->bottom, highlight_text);
         u8g2_SetDrawColor(u8g2, 1);
     }
@@ -186,16 +202,31 @@ static void getLineText(DrawCtlParam *ctl, int line, char *line_text, uint8_t in
     }
     else // value line
     {
+        SlParaName cursor = get_cursor();
+        SlParaName item1_name = ctl->name[index_start];
+        uint16_t item1_val = sl_worker_get(item1_name);
+
         if (HAS_TWO_ITEM(index_start, ctl->count))
         {
+            SlParaName item2_name = ctl->name[index_start + 1];
+            uint16_t item2_val = sl_worker_get(item2_name);
+
             if (indepIndex)
             {
                 uint8_t indepRealIndex = (indepIndex + line - 1);
-                sprintf(line_text, "%d \002%3d\003%5d", indepRealIndex, sl_worker_get(ctl->name[index_start]), sl_worker_get(ctl->name[index_start + 1]));
+                sprintf(line_text, "%d %c%03d%c%c%5d%c", indepRealIndex,
+                        item1_name == cursor ? '\002' : '\003', item1_val,
+                        item1_name == cursor ? '\003' : '\003',
+                        item2_name == cursor ? '\002' : '\003', item2_val,
+                        item2_name == cursor ? '\003' : '\003');
             }
             else
             {
-                sprintf(line_text, "\002%6d\003%6d", sl_worker_get(ctl->name[index_start]), sl_worker_get(ctl->name[index_start + 1]));
+                sprintf(line_text, "%c%6d%c%c%6d%c",
+                        item1_name == cursor ? '\002' : '\003', item1_val,
+                        item1_name == cursor ? '\003' : '\003',
+                        item2_name == cursor ? '\002' : '\003', item2_val,
+                        item2_name == cursor ? '\003' : '\003');
             }
         }
         else
@@ -203,12 +234,14 @@ static void getLineText(DrawCtlParam *ctl, int line, char *line_text, uint8_t in
             char modifier = '\000';
             if (ctl->count == 1)
             {
-                modifier = (ctl->name[index_start] == PARAM_DIM) ? '%' : 'K';
-                sprintf(line_text, "%d%c", sl_worker_get(ctl->name[index_start]), modifier);
+                modifier = (item1_name == PARAM_DIM) ? '%' : 'K';
+                sprintf(line_text, "%d%c", item1_val, modifier);
             }
             else
             {
-                sprintf(line_text, "%6d      ", sl_worker_get(ctl->name[index_start]));
+                sprintf(line_text, "%c%6d%c      ",
+                        item1_name == cursor ? '\002' : '\003', item1_val,
+                        item1_name == cursor ? '\003' : '\003');
             }
         }
     }

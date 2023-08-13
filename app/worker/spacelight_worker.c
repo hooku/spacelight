@@ -1,7 +1,7 @@
 #include "spacelight_worker.h"
 
 #define TUNER_QUICK_SLIDE_THRESHOLD_COUNT 2
-#define TUNER_QUICK_SLIDE_THRESHOLD_TIME 25
+#define TUNER_QUICK_SLIDE_THRESHOLD_TIME 25U
 
 uint16_t worker_stage = MAIN_CCT;
 
@@ -84,13 +84,13 @@ void sl_worker_tuner(SlParaName name, GenericAction action)
     ULONG current_tuner_tick = tx_time_get();
 
     if ((param == last_param) && (action == last_action) &&
-        (current_tuner_tick - last_tuner_tick < TUNER_QUICK_SLIDE_THRESHOLD_TIME))
+        ((current_tuner_tick - last_tuner_tick) <= TUNER_QUICK_SLIDE_THRESHOLD_TIME))
     {
         if (last_tuner_count >= TUNER_QUICK_SLIDE_THRESHOLD_COUNT)
             step *= (last_tuner_count + 1);
         last_tuner_count++;
     }
-    if (current_tuner_tick - last_tuner_tick > TUNER_QUICK_SLIDE_THRESHOLD_TIME)
+    if ((current_tuner_tick - last_tuner_tick) > TUNER_QUICK_SLIDE_THRESHOLD_TIME)
     {
         last_tuner_count = 0;
     }

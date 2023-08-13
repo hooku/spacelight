@@ -89,12 +89,12 @@ static const SlParaName name_menu[] = {
 
 static const SlParaName name_indep[] = {
     {PARAM_INDEP_DIM1},
-    {PARAM_INDEP_DIM2},
-    {PARAM_INDEP_DIM3},
-    {PARAM_INDEP_DIM4},
     {PARAM_INDEP_CCT1},
+    {PARAM_INDEP_DIM2},
     {PARAM_INDEP_CCT2},
+    {PARAM_INDEP_DIM3},
     {PARAM_INDEP_CCT3},
+    {PARAM_INDEP_DIM4},
     {PARAM_INDEP_CCT4},
 };
 

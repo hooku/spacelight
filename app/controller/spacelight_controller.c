@@ -37,14 +37,21 @@ static SlParaName get_focus(ButtonType btn_type)
 {
 #define IS_BTN_DIM(btn) ((btn == BTN_DIM_INC) || (btn == BTN_DIM_DEC))
 
-    int index = IS_BTN_DIM(btn_type) ? 0 : focus_index;
+    int index = (IS_BTN_DIM(btn_type) && gui_stage != MAIN_INDEP) ? 0 : focus_index;
     SlParaName name = *(stage_name_map[gui_stage].name + index);
     return name;
 }
 
+SlParaName get_cursor()
+{
+    return get_focus(BTN_CCT_PRESS);
+}
+
 static void set_focus_next()
 {
-    focus_index = (focus_index % stage_name_map[gui_stage].param_count) + 1;
+    focus_index = (focus_index + 1) % stage_name_map[gui_stage].param_count;
+    if ((gui_stage != MAIN_INDEP) && (focus_index == 0)) /* skip focus on dim */
+        focus_index++;
 }
 
 static void sl_controller_main(ButtonType btn_type, void **stage, void **worker_message)
@@ -78,6 +85,7 @@ static void sl_controller_main(ButtonType btn_type, void **stage, void **worker_
         case BTN_5600K:
             sl_worker_set_value(IS_BLINK_INDEP_CCT(focus) ? focus : PARAM_CCT, CCT_5600K);
             break;
+        case BTN_DIM_PRESS:
         case BTN_CCT_PRESS:
             set_focus_next();
             break;
@@ -146,7 +154,7 @@ static void sl_controller_menu(ButtonType btn_type, void **stage, void **worker_
         if (gui_stage == MENU_EFFECT_MODE)
         {
             sl_worker_set_stage(next_gui_stage);
-            focus_index = 1;
+            focus_index = (next_gui_stage == MAIN_INDEP ? 0 : 1);
         }
         sl_worker_sync(*stage_name_map[next_gui_stage].name);
         gui_stage = next_gui_stage;

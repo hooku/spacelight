@@ -125,7 +125,7 @@ void render_gui_menu(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_stage)
         sl_worker_menu_init(gui_stage, last_gui_stage, menu_param.item_count);
         if ((gui_stage == MENU_MAIN) && (IS_SUB_MENU_CFG(last_gui_stage)))
         {
-            /* enter main menu from sub memu exit */
+            /* enter main menu from sub menu exit */
             last_first_visible = menu_main_last_first_visible;
             menu_param.cursor = menu_main_last_cursor;
             sl_worker_set_value(PARAM_MENU, menu_param.cursor);
