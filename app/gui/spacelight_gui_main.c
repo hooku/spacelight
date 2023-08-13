@@ -2,6 +2,8 @@
 #include "spacelight_gui.h"
 #include "spacelight_param.h"
 
+#include <stdio.h>
+
 /*
     title bar (number of head + title)
     ------------------------
@@ -13,12 +15,20 @@
 */
 
 /* GUI element size, units in px */
+#define GUI_ICON_WIDTH 8
+#define GUI_ICON_HEIGHT 8
+
 #define GUI_LINE_WIDTH 1
 
 #define GUI_TITLE_BAR_LEFT 0
 #define GUI_TITLE_BAR_TOP 0
 #define GUI_TITLE_BAR_WIDTH GUI_SCREEN_WIDTH
 #define GUI_TITLE_BAR_HEIGHT 9
+
+#define GUI_TITLE_BAR_ICON_LEFT 100
+#define GUI_TITLE_BAR_ICON_TOP 0
+#define GUI_TITLE_BAR_ICON_GAP 2
+#define GUI_TITLE_BAR_ICON_COUNT 3
 
 #define GUI_STATUS_BAR_LEFT 0
 #define GUI_STATUS_BAR_TOP (GUI_LCTL_BAR_TOP + GUI_LCTL_BAR_HEIGHT + GUI_LINE_WIDTH)
@@ -79,6 +89,12 @@ typedef struct
     char status_text[MAX_TEXT_LEN_LONG];
 } GuiParam;
 
+typedef struct
+{
+    const uint8_t *icon;
+    bool (*func)();
+} IconFuncMap;
+
 StageTitleMap stage_title_map[] = {
     {MAIN_CCT, STR_CCT},
     {MAIN_BLINK, STR_BLINK},
@@ -95,6 +111,15 @@ DmxStatusMap dmx_mode_map[] = {
     {DMX_8CH, STR_8CH},
     {DMX_11CH, STR_11CH},
 };
+
+/* XBM ICON */
+static const uint8_t icon_lock[] = {0x18, 0x24, 0x24, 0x7e, 0x7e, 0x66, 0x7e, 0x7e};
+static const uint8_t icon_upload[] = {0x18, 0x3c, 0x7e, 0xff, 0x18, 0x18, 0x18, 0xff};
+static const uint8_t icon_dowload[] = {0x18, 0x18, 0x18, 0xff, 0x7e, 0x3c, 0x18, 0xff};
+static const IconFuncMap icon_map[] = {
+    {icon_lock, sl_worker_locktime_is_locked},
+    {icon_upload, sl_worker_locktime_is_locked},
+    {icon_dowload, sl_worker_locktime_is_locked}};
 
 extern SlParaName get_cursor();
 
@@ -160,26 +185,38 @@ static void draw_text(u8g2_t *u8g2, Rect *pos, char *str)
     }
 }
 
+static void draw_title_bar_icon(u8g2_t *u8g2)
+{
+    for (int i_ico = 0; i_ico < GUI_TITLE_BAR_ICON_COUNT; i_ico++)
+    {
+        u8g2_uint_t ico_left = GUI_TITLE_BAR_ICON_LEFT + (GUI_ICON_WIDTH + GUI_TITLE_BAR_ICON_GAP) * i_ico;
+        if (icon_map[i_ico].func())
+            u8g2_DrawXBM(u8g2, ico_left, GUI_TITLE_BAR_ICON_TOP, GUI_ICON_WIDTH, GUI_ICON_HEIGHT, icon_map[i_ico].icon);
+    }
+}
+
 static void draw_title_bar(u8g2_t *u8g2, GuiParam *gui_param)
 {
+    /* bottom line */
+    u8g2_DrawLine(u8g2, 0, GUI_TITLE_BAR_TOP + GUI_TITLE_BAR_HEIGHT + GUI_LINE_WIDTH, GUI_SCREEN_WIDTH, GUI_TITLE_BAR_TOP + GUI_TITLE_BAR_HEIGHT + GUI_LINE_WIDTH);
+
     u8g2_SetFont(u8g2, GUI_TITLE_FONT);
     Rect title_bar_pos = {
         0, 0, GUI_TITLE_BAR_WIDTH, GUI_TITLE_BAR_HEIGHT + u8g2_GetDescent(u8g2)};
     draw_text(u8g2, &title_bar_pos, gui_param->title_text);
 
-    /* bottom line */
-    u8g2_DrawLine(u8g2, 0, GUI_TITLE_BAR_TOP + GUI_TITLE_BAR_HEIGHT + GUI_LINE_WIDTH, GUI_SCREEN_WIDTH, GUI_TITLE_BAR_TOP + GUI_TITLE_BAR_HEIGHT + GUI_LINE_WIDTH);
+    draw_title_bar_icon(u8g2);
 }
 
 static void draw_status_bar(u8g2_t *u8g2, GuiParam *gui_param)
 {
+    /* top line */
+    u8g2_DrawLine(u8g2, 0, GUI_LCTL_BAR_TOP + GUI_LCTL_BAR_HEIGHT + GUI_LINE_WIDTH, GUI_SCREEN_WIDTH, GUI_LCTL_BAR_TOP + GUI_LCTL_BAR_HEIGHT + GUI_LINE_WIDTH);
+
     u8g2_SetFont(u8g2, GUI_STATUS_FONT);
     Rect status_bar_pos = {
         GUI_STATUS_BAR_LEFT, GUI_STATUS_BAR_TOP, GUI_STATUS_BAR_WIDTH, GUI_STATUS_BAR_TOP + GUI_STATUS_BAR_HEIGHT + u8g2_GetDescent(u8g2)};
     draw_text(u8g2, &status_bar_pos, gui_param->status_text);
-
-    /* top line */
-    u8g2_DrawLine(u8g2, 0, GUI_LCTL_BAR_TOP + GUI_LCTL_BAR_HEIGHT + GUI_LINE_WIDTH, GUI_SCREEN_WIDTH, GUI_LCTL_BAR_TOP + GUI_LCTL_BAR_HEIGHT + GUI_LINE_WIDTH);
 }
 
 static void getLineText(DrawCtlParam *ctl, int line, char *line_text, uint8_t indepIndex)
