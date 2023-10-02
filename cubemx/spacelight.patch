@@ -16,7 +16,7 @@ index 396db4c..6db27f5 100644
  
      /* USER CODE BEGIN  App_ThreadX_Init_Success */
 -
-+    sl_entry(tx_app_byte_pool);
++    entry(tx_app_byte_pool);
      /* USER CODE END  App_ThreadX_Init_Success */
  
    }

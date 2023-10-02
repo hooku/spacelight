@@ -1,5 +1,5 @@
-#include "../worker/spacelight_worker.h"
 #include "spacelight_gui.h"
+#include "../worker/spacelight_worker.h"
 #include "spacelight_param.h"
 
 #include <stdio.h>
@@ -14,7 +14,7 @@
     stauts bar (address + mode)
 */
 
-/* GUI element size, units in px */
+/* units in px */
 #define GUI_ICON_WIDTH 8
 #define GUI_ICON_HEIGHT 8
 
@@ -117,73 +117,11 @@ static const uint8_t icon_lock[] = {0x18, 0x24, 0x24, 0x7e, 0x7e, 0x66, 0x7e, 0x
 static const uint8_t icon_upload[] = {0x18, 0x3c, 0x7e, 0xff, 0x18, 0x18, 0x18, 0xff};
 static const uint8_t icon_dowload[] = {0x18, 0x18, 0x18, 0xff, 0x7e, 0x3c, 0x18, 0xff};
 static const IconFuncMap icon_map[] = {
-    {icon_lock, sl_worker_locktime_is_locked},
-    {icon_upload, sl_worker_locktime_is_locked},
-    {icon_dowload, sl_worker_locktime_is_locked}};
+    {icon_lock, worker_locktime_is_locked},
+    {icon_upload, worker_locktime_is_locked},
+    {icon_dowload, worker_locktime_is_locked}};
 
 extern SlParaName get_cursor();
-
-static void get_visible_text(const char *str, char *visible_text)
-{
-    for (int i_ch = 0, i_visible = 0; (i_ch < MAX_TEXT_LEN_LONG) && (str[i_ch] != 0); i_ch++)
-    {
-        if (str[i_ch] >= '\040') /* space char */
-            visible_text[i_visible++] = str[i_ch];
-    }
-}
-
-static int16_t get_highlight_text(const char *str, char *highlight)
-{
-    int16_t visible_ch_count = 0;
-    bool highlight_found = false;
-    for (int i_ch = 0, i_highlight = 0; (i_ch < MAX_TEXT_LEN_LONG) && (str[i_ch] != 0); i_ch++)
-    {
-        if (highlight_found)
-        {
-            if (str[i_ch] == '\003') /* end of text */
-                break;
-
-            highlight[i_highlight++] = str[i_ch];
-        }
-        else
-        {
-            visible_ch_count += (str[i_ch] >= '\040') ? 1 : 0;
-        }
-        if (str[i_ch] == '\002') /* start of text */
-            highlight_found = true;
-    }
-
-    return highlight_found ? visible_ch_count : -1;
-}
-
-/* Draw text on screen
- *
- * @param u8g2 u8g2 handle ptr
- * @param pos Text region rectangle
- * @param str Text to draw, highlight
- */
-static void draw_text(u8g2_t *u8g2, Rect *pos, char *str)
-{
-    char visible_text[MAX_TEXT_LEN_LONG] = {0};
-    get_visible_text(str, visible_text);
-
-    u8g2_SetFontMode(u8g2, 0);
-    u8g2_uint_t str_width = u8g2_GetStrWidth(u8g2, visible_text);
-    u8g2_uint_t center_x = pos->left + (pos->right - pos->left) / 2;
-    u8g2_DrawStr(u8g2, center_x - str_width / 2, pos->bottom, visible_text);
-
-    /* draw high light text over normal text */
-    char highlight_text[MAX_TEXT_LEN_LONG] = {0};
-    int16_t highlight_start = get_highlight_text(str, highlight_text);
-    if (highlight_start >= 0)
-    {
-        u8g2_SetDrawColor(u8g2, 0);
-        visible_text[highlight_start] = 0;
-        u8g2_uint_t hightlight_left_width = u8g2_GetStrWidth(u8g2, visible_text);
-        u8g2_DrawStr(u8g2, center_x - str_width / 2 + hightlight_left_width, pos->bottom, highlight_text);
-        u8g2_SetDrawColor(u8g2, 1);
-    }
-}
 
 static void draw_title_bar_icon(u8g2_t *u8g2)
 {
@@ -203,7 +141,7 @@ static void draw_title_bar(u8g2_t *u8g2, GuiParam *gui_param)
     u8g2_SetFont(u8g2, GUI_TITLE_FONT);
     Rect title_bar_pos = {
         0, 0, GUI_TITLE_BAR_WIDTH, GUI_TITLE_BAR_HEIGHT + u8g2_GetDescent(u8g2)};
-    draw_text(u8g2, &title_bar_pos, gui_param->title_text);
+    gui_text(u8g2, &title_bar_pos, gui_param->title_text);
 
     draw_title_bar_icon(u8g2);
 }
@@ -216,7 +154,7 @@ static void draw_status_bar(u8g2_t *u8g2, GuiParam *gui_param)
     u8g2_SetFont(u8g2, GUI_STATUS_FONT);
     Rect status_bar_pos = {
         GUI_STATUS_BAR_LEFT, GUI_STATUS_BAR_TOP, GUI_STATUS_BAR_WIDTH, GUI_STATUS_BAR_TOP + GUI_STATUS_BAR_HEIGHT + u8g2_GetDescent(u8g2)};
-    draw_text(u8g2, &status_bar_pos, gui_param->status_text);
+    gui_text(u8g2, &status_bar_pos, gui_param->status_text);
 }
 
 static void getLineText(DrawCtlParam *ctl, int line, char *line_text, uint8_t indepIndex)
@@ -241,17 +179,17 @@ static void getLineText(DrawCtlParam *ctl, int line, char *line_text, uint8_t in
     {
         SlParaName cursor = get_cursor();
         SlParaName item1_name = ctl->name[index_start];
-        uint16_t item1_val = sl_worker_get(item1_name);
+        uint16_t item1_val = worker_get(item1_name);
 
         if (HAS_TWO_ITEM(index_start, ctl->count))
         {
             SlParaName item2_name = ctl->name[index_start + 1];
-            uint16_t item2_val = sl_worker_get(item2_name);
+            uint16_t item2_val = worker_get(item2_name);
 
             if (indepIndex)
             {
                 uint8_t indepRealIndex = (indepIndex + line - 1);
-                sprintf(line_text, "%d %c%03d%c%c%5d%c", indepRealIndex,
+                sprintf(line_text, "%d %c%03d%c %c%4d%c", indepRealIndex,
                         item1_name == cursor ? '\002' : '\003', item1_val,
                         item1_name == cursor ? '\003' : '\003',
                         item2_name == cursor ? '\002' : '\003', item2_val,
@@ -313,7 +251,7 @@ static void draw_ctl(u8g2_t *u8g2, DrawCtlParam *ctl, Rect *pos, uint8_t indepIn
         Rect font_pos = {
             pos->left, pos->top + text_gap * i_line,
             pos->right, pos->top + text_gap * i_line + text_gap / 2 + (u8g2_GetAscent(u8g2) - u8g2_GetDescent(u8g2)) / 2};
-        draw_text(u8g2, &font_pos, line_text);
+        gui_text(u8g2, &font_pos, line_text);
     }
 }
 
@@ -437,13 +375,13 @@ static void setup_gui_status(GuiParam *gui_param, uint8_t update_lock_unlock_txt
     else
     {
         sprintf(gui_param->status_text, "DMX: %03d  %-10s",
-                sl_worker_get(PARAM_DMXADDR),
-                dmx_mode_map[sl_worker_get(PARAM_DMXMODE)].status_text);
+                worker_get(PARAM_DMXADDR),
+                dmx_mode_map[worker_get(PARAM_DMXMODE)].status_text);
         lock_unlock_txt_shown = 0;
     }
 }
 
-void render_gui_main(u8g2_t *u8g2, GuiStage stage, GuiMsg msg)
+void render_gui_main(u8g2_t *u8g2, GuiStage stage, Msg msg)
 {
     GuiParam gui_param = {0};
 
@@ -452,13 +390,13 @@ void render_gui_main(u8g2_t *u8g2, GuiStage stage, GuiMsg msg)
         if (stage == MAIN_CCT)
         {
             sprintf(gui_param.title_text, "[%d]%*c",
-                    sl_worker_get(PARAM_LAMPCOUNT),
+                    worker_get(PARAM_LAMPCOUNT),
                     18, ' ');
         }
         else
         {
             sprintf(gui_param.title_text, "[%d] [%s]%*c",
-                    sl_worker_get(PARAM_LAMPCOUNT),
+                    worker_get(PARAM_LAMPCOUNT),
                     stage_title_map[stage].title_text,
                     15 - strlen(stage_title_map[stage].title_text), ' ');
         }
@@ -466,7 +404,7 @@ void render_gui_main(u8g2_t *u8g2, GuiStage stage, GuiMsg msg)
         setup_gui_status(&gui_param, (msg == MSG_LOCK_UNLOCK_TXT));
     }
 
-    sl_gui_clear();
+    gui_clear();
     draw_title_bar(u8g2, &gui_param);
     draw_status_bar(u8g2, &gui_param);
 

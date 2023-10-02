@@ -13,7 +13,8 @@
             "tx_api.h": "c",
             "tx_port.h": "c",
             "main.h": "c",
-            "spacelight_worker.h": "c"
+            "spacelight_worker.h": "c",
+            "stm32f4xx_hal_gpio.h": "c"
         }
     }
 }

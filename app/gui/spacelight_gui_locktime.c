@@ -24,7 +24,7 @@ static void draw_locktime(u8g2_t *u8g2)
 
     u8g2_SetFont(u8g2, LOCKTIME_LINE_1_FONT);
     char locktime_text[MAX_TEXT_LEN_LONG];
-    sprintf(locktime_text, "%d Sec", sl_worker_get_new(PARAM_LOCKTIME));
+    sprintf(locktime_text, "%d Sec", worker_get_new(PARAM_LOCKTIME));
     u8g2_uint_t locktime_width = u8g2_GetStrWidth(u8g2, locktime_text);
     u8g2_DrawStr(u8g2, LOCKTIME_LEFT - locktime_width / 2, LOCKTIME_TOP_LINE_1 + LOCKTIME_BOUNDBOX / 2, locktime_text);
 }
@@ -40,8 +40,8 @@ static void draw_progress(u8g2_t *u8g2)
     u8g2_DrawFrame(u8g2, pos.left, pos.top, pos.right - pos.left, pos.bottom - pos.top);
 
     u8g2_uint_t progress_width = (pos.right - pos.left) *
-                                 (sl_worker_get_new(PARAM_LOCKTIME) - sl_worker_get_min(PARAM_LOCKTIME)) /
-                                 (sl_worker_get_max(PARAM_LOCKTIME) - sl_worker_get_min(PARAM_LOCKTIME));
+                                 (worker_get_new(PARAM_LOCKTIME) - worker_get_min(PARAM_LOCKTIME)) /
+                                 (worker_get_max(PARAM_LOCKTIME) - worker_get_min(PARAM_LOCKTIME));
     u8g2_DrawBox(u8g2, pos.left, pos.top, progress_width, pos.bottom - pos.top);
 }
 

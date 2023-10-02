@@ -59,6 +59,9 @@
 #define STR_8CH "Independent"
 #define STR_11CH "All param"
 
+#define STR_MSG_INDEP_LAMPON "All lamps are ON in Indep"
+#define STR_MSG_CTL_BY_DMX "DMX controls this function"
+
 #define MS_TO_SEC(ms) (ms / 1000)
 #define SEC_TO_MS(ms) (ms * 1000)
 #define MS_TO_TICK(ms) (ms * TX_TIMER_TICKS_PER_SECOND / 1000)
@@ -112,6 +115,7 @@ typedef enum
     CFG_WIRELESS,
     CFG_LOCK_TIME,
     CFG_VERSION,
+    MSG_BOX,
     GUI_UNINITIALIZED,
 } GuiStage;
 
@@ -120,6 +124,18 @@ typedef enum
     MSG_LOCK_UNLOCK_TXT,
     MSG_NONE,
 } GuiMsg;
+
+typedef enum
+{
+    MSG_INDEP_LAMPON,
+    MSG_CTL_BY_DMX,
+} MsgType;
+
+typedef enum
+{
+    MSG_EXCLAMATION,
+    MSG_CRITICAL,
+} MsgStyle;
 
 typedef enum
 {
@@ -134,22 +150,24 @@ typedef enum
     WIRELESS_OFF,
 } WirelessMode;
 
+typedef uint32_t Msg;
+
 extern SPI_HandleTypeDef hspi1;
 extern TIM_HandleTypeDef htim2;
 
 /* controller */
-extern void sl_controller(ButtonType button_type, void **gui_message, void **worker_message);
+extern void controller(ButtonType button_type, void **gui_message, void **worker_message);
 
 /* handler */
-extern void sl_entry(TX_BYTE_POOL tx_app_byte_pool);
-extern void sl_gui_refresh(uint16_t stage, GuiMsg msg);
+extern void entry(TX_BYTE_POOL tx_app_byte_pool);
+extern void gui_refresh(uint16_t stage, GuiMsg msg);
 
 extern TX_QUEUE qu_input;
 extern GPIO_PinState last_sw2;
 extern ULONG last_sw2_tick;
 
 /* worker */
-extern void sl_worker_init();
+extern void worker_init();
 
 inline void spacelight_tim_cb(TIM_HandleTypeDef *htim)
 {

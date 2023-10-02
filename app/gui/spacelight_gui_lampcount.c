@@ -72,7 +72,7 @@ void render_gui_lampcount(u8g2_t *u8g2, GuiStage gui_stage, GuiStage last_gui_st
 {
     u8g2_ClearBuffer(u8g2);
 
-    uint16_t lampcount = sl_worker_get_new(PARAM_LAMPCOUNT);
+    uint16_t lampcount = worker_get_new(PARAM_LAMPCOUNT);
 
     for (uint16_t i_lamp = 0; i_lamp < LAMP_TOTAL; i_lamp++)
     {

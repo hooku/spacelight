@@ -5,71 +5,71 @@
 
 uint16_t worker_stage = MAIN_CCT;
 
-void sl_worker_init()
+void worker_init()
 {
-    sl_worker_locktime_init();
+    worker_locktime_init();
 }
 
-uint16_t sl_worker_get_stage()
+uint16_t worker_get_stage()
 {
     return worker_stage;
 }
 
-uint16_t sl_worker_get(SlParaName name)
+uint16_t worker_get(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     return param->value;
 }
 
-uint16_t sl_worker_get_new(SlParaName name)
+uint16_t worker_get_new(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     return param->new_value;
 }
 
-uint16_t sl_worker_get_min(SlParaName name)
+uint16_t worker_get_min(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     return param->min;
 }
 
-uint16_t sl_worker_get_max(SlParaName name)
+uint16_t worker_get_max(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     return param->max;
 }
 
-void sl_worker_set_stage(uint16_t stage)
+void worker_set_stage(uint16_t stage)
 {
     worker_stage = stage;
 }
 
-void sl_worker_sync(SlParaName name)
+void worker_sync(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     param->new_value = param->value;
 }
 
-void sl_worker_set(SlParaName name)
+void worker_set(SlParaName name)
 {
     TunerParam *param = name_param_map[name].param;
     param->value = param->new_value;
 }
 
-uint16_t sl_worker_set_value(SlParaName name, uint16_t value)
+uint16_t worker_set_value(SlParaName name, uint16_t value)
 {
     TunerParam *param = name_param_map[name].param;
     param->value = value;
     param->new_value = param->value;
 }
 
-void sl_worker_set_max(SlParaName name, uint16_t value)
+void worker_set_max(SlParaName name, uint16_t value)
 {
     TunerParam *param = name_param_map[name].param;
     param->max = value;
 }
 
-void sl_worker_tuner(SlParaName name, GenericAction action)
+void worker_tuner(SlParaName name, GenericAction action)
 {
     TunerParam *param = name_param_map[name].param;
 

@@ -31,18 +31,18 @@ static void locktime_expired(ULONG param)
         sm_locktime = SM_LOCK;
         locktime_config(LOCK_BANNA_MS);
     }
-    sl_gui_refresh(sl_worker_get_stage(), MSG_LOCK_UNLOCK_TXT);
+    gui_refresh(worker_get_stage(), MSG_LOCK_UNLOCK_TXT);
 }
 
-void sl_worker_locktime_apply()
+void worker_locktime_apply()
 {
-    uint16_t locktime = SEC_TO_MS(sl_worker_get(PARAM_LOCKTIME));
+    uint16_t locktime = SEC_TO_MS(worker_get(PARAM_LOCKTIME));
     locktime_config(locktime);
 }
 
-void sl_worker_locktime_init()
+void worker_locktime_init()
 {
-    uint16_t locktime = SEC_TO_MS(sl_worker_get(PARAM_LOCKTIME));
+    uint16_t locktime = SEC_TO_MS(worker_get(PARAM_LOCKTIME));
     ULONG locktime_tick = MS_TO_TICK(locktime);
 
     UINT status;
@@ -52,18 +52,18 @@ void sl_worker_locktime_init()
     assert_param(status == TX_SUCCESS);
 }
 
-void sl_worker_locktime_reset()
+void worker_locktime_reset()
 {
-    sl_worker_locktime_apply();
+    worker_locktime_apply();
 }
 
-void sl_worker_locktime_unlock()
+void worker_locktime_unlock()
 {
     sm_locktime = SM_UNLOCK;
-    sl_worker_locktime_reset();
+    worker_locktime_reset();
 }
 
-bool sl_worker_locktime_is_locked()
+bool worker_locktime_is_locked()
 {
     return (sm_locktime == SM_LOCK);
 }

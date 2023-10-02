@@ -52,7 +52,69 @@ static uint8_t u8x8_stm32_gpio_and_delay(U8X8_UNUSED u8x8_t *u8x8,
     return 1;
 }
 
-void sl_gui_init()
+static void get_visible_str(const char *str, char *visible_str)
+{
+    for (int i_ch = 0, i_visible = 0; (i_ch < MAX_TEXT_LEN_LONG) && (str[i_ch] != 0); i_ch++)
+    {
+        if (str[i_ch] >= '\040') /* space char */
+            visible_str[i_visible++] = str[i_ch];
+    }
+}
+
+static int16_t get_highlight_text(const char *str, char *highlight)
+{
+    int16_t visible_ch_count = 0;
+    bool highlight_found = false;
+    for (int i_ch = 0, i_highlight = 0; (i_ch < MAX_TEXT_LEN_LONG) && (str[i_ch] != 0); i_ch++)
+    {
+        if (highlight_found)
+        {
+            if (str[i_ch] == '\003') /* end of text */
+                break;
+
+            highlight[i_highlight++] = str[i_ch];
+        }
+        else
+        {
+            visible_ch_count += (str[i_ch] >= '\040') ? 1 : 0;
+        }
+        if (str[i_ch] == '\002') /* start of text */
+            highlight_found = true;
+    }
+
+    return highlight_found ? visible_ch_count : -1;
+}
+
+/* Draw text on screen
+ *
+ * @param u8g2 u8g2 handle ptr
+ * @param pos Text region rectangle
+ * @param str Text to draw, highlight
+ */
+void gui_text(u8g2_t *u8g2, Rect *pos, const char *str)
+{
+    char visible_str[MAX_TEXT_LEN_LONG] = {0};
+    get_visible_str(str, visible_str);
+
+    u8g2_SetFontMode(u8g2, 0);
+    u8g2_uint_t str_width = u8g2_GetStrWidth(u8g2, visible_str);
+    u8g2_uint_t center_x = pos->left + (pos->right - pos->left) / 2;
+    u8g2_DrawStr(u8g2, center_x - str_width / 2, pos->bottom, visible_str);
+
+    /* draw high light text over normal text */
+    char highlight_text[MAX_TEXT_LEN_LONG] = {0};
+    int16_t highlight_start = get_highlight_text(str, highlight_text);
+    if (highlight_start >= 0)
+    {
+        u8g2_SetDrawColor(u8g2, 0);
+        visible_str[highlight_start] = 0;
+        u8g2_uint_t hightlight_left_width = u8g2_GetStrWidth(u8g2, visible_str);
+        u8g2_DrawStr(u8g2, center_x - str_width / 2 + hightlight_left_width, pos->bottom, highlight_text);
+        u8g2_SetDrawColor(u8g2, 1);
+    }
+}
+
+void gui_init()
 {
 #define SL_CONTRAST 1
 
@@ -69,16 +131,16 @@ void sl_gui_init()
     init_gui_menu();
 }
 
-void sl_gui_clear()
+void gui_clear()
 {
     u8g2_ClearBuffer(&u8g2);
     u8g2_SetFontPosBaseline(&u8g2);
 }
 
-void sl_gui_update(uint16_t stage, GuiMsg msg)
+void gui_update(uint16_t stage, GuiMsg msg)
 {
     static uint16_t last_stage = GUI_UNINITIALIZED;
-
+    stage = MSG_BOX;
     switch (stage)
     {
     case MENU_MAIN:
@@ -97,6 +159,9 @@ void sl_gui_update(uint16_t stage, GuiMsg msg)
     case CFG_LOCK_TIME:
         render_gui_locktime(&u8g2, stage, last_stage);
         break;
+    case MSG_BOX:
+        render_gui_msgbox(&u8g2, stage, last_stage);
+        break;
     case MAIN_CCT:
     case MAIN_BLINK:
     case MAIN_BREATHE:
@@ -106,7 +171,8 @@ void sl_gui_update(uint16_t stage, GuiMsg msg)
     case MAIN_FIRE:
     case MAIN_INDEP:
     default:
-        render_gui_main(&u8g2, stage, msg);
+        GuiMsg gui_msg = (GuiMsg)msg;
+        render_gui_main(&u8g2, stage, gui_msg);
         break;
     }
 

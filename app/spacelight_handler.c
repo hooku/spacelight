@@ -2,6 +2,9 @@
 
 #include "spacelight.h"
 
+#include "stm32f4xx_hal_gpio.h"
+#include "stm32f4xx_hal_dma.h"
+
 TX_QUEUE qu_gui;
 TX_QUEUE qu_worker;
 TX_QUEUE qu_input;
@@ -13,9 +16,19 @@ TX_THREAD th_controller;
 GPIO_PinState last_sw2 = GPIO_PIN_SET;
 ULONG last_sw2_tick = 0;
 
+extern TIM_HandleTypeDef htim2;
+
+extern UART_HandleTypeDef huart4;
+extern DMA_HandleTypeDef hdma_uart4_tx;
+
+extern UART_HandleTypeDef huart5;
+extern DMA_HandleTypeDef hdma_uart5_rx;
+
+void HAL_DMA_TransferComplete_Callback(DMA_HandleTypeDef *hdma);
+
 void thread_gui(ULONG param)
 {
-    sl_gui_init();
+    gui_init();
 
     while (1)
     {
@@ -24,7 +37,7 @@ void thread_gui(ULONG param)
         status = tx_queue_receive(&qu_gui, &gui_message, TX_WAIT_FOREVER);
         assert_param(status == TX_SUCCESS);
 
-        sl_gui_update(GUI_MSG_STAGE(gui_message), GUI_MSG_MSG(gui_message));
+        gui_update(GUI_MSG_STAGE(gui_message), GUI_MSG_MSG(gui_message));
     }
 }
 
@@ -51,8 +64,8 @@ void thread_controller(ULONG param)
     UINT status;
 
     // draw initial GUI
-    sl_controller(BTN_BACK, &gui_message, worker_message);
-    sl_gui_refresh(*(uint16_t *)gui_message, MSG_NONE);
+    controller(BTN_BACK, &gui_message, worker_message);
+    gui_refresh(*(uint16_t *)gui_message, MSG_NONE);
 
     while (1)
     {
@@ -61,15 +74,15 @@ void thread_controller(ULONG param)
         assert_param(status == TX_SUCCESS);
 
         gui_message = NULL;
-        sl_controller(button_type, &gui_message, &worker_message);
+        controller(button_type, &gui_message, &worker_message);
         if (gui_message != NULL)
         {
-            sl_gui_refresh(*(uint16_t *)gui_message, MSG_NONE);
+            gui_refresh(*(uint16_t *)gui_message, MSG_NONE);
         }
     }
 }
 
-void sl_gui_refresh(uint16_t stage, GuiMsg msg)
+void gui_refresh(uint16_t stage, GuiMsg msg)
 {
     ULONG gui_message = GUI_MSG(stage, msg);
     UINT status;
@@ -77,7 +90,27 @@ void sl_gui_refresh(uint16_t stage, GuiMsg msg)
     assert_param(status == TX_SUCCESS);
 }
 
-void sl_entry(TX_BYTE_POOL tx_app_byte_pool)
+void setup_dmx512()
+{
+    /* dmx512 input, RE# = LOW */
+    HAL_GPIO_WritePin(E485_1_GPIO_Port, E485_1_Pin, GPIO_PIN_RESET);
+
+    /* setup dma for uart5 */
+    HAL_DMA_RegisterCallback(&hdma_uart5_rx, HAL_DMA_XFER_HALFCPLT_CB_ID,
+                             &HAL_DMA_TransferComplete_Callback);
+
+    /* dmx512 output, DE = HIGH */
+    HAL_GPIO_WritePin(E485_2_GPIO_Port, E485_2_Pin, GPIO_PIN_SET);
+
+    /* setup dma for uart4 */
+    HAL_DMA_RegisterCallback(&hdma_uart4_tx, HAL_DMA_XFER_HALFCPLT_CB_ID,
+                             &HAL_DMA_TransferComplete_Callback);
+
+    /* PIN77 */
+    HAL_GPIO_WritePin(PIN77_GPIO_Port, PIN77_Pin, GPIO_PIN_SET);
+}
+
+void entry(TX_BYTE_POOL tx_app_byte_pool)
 {
     void *ptr;
 
@@ -110,7 +143,9 @@ void sl_entry(TX_BYTE_POOL tx_app_byte_pool)
     /* enable TIM2 CH1 as SW1 */
     HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
 
-    sl_worker_init();
+    setup_dmx512();
+
+    worker_init();
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
@@ -194,6 +229,20 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
     ButtonType btn_type = BTN_DIM_PRESS;
     status = tx_queue_send(&qu_input, &btn_type, TX_NO_WAIT);
     assert_param(status == TX_SUCCESS);
+}
+
+void HAL_DMA_TransferComplete_Callback(DMA_HandleTypeDef *hdma)
+{
+    if (hdma == (&hdma_uart5_rx))
+    {
+    }
+    else if (hdma == (&hdma_uart4_tx))
+    {
+    }
+}
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
 }
 
 int _write(int file, char *ptr, int len)
