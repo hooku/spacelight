@@ -5,6 +5,10 @@
 
 #include "app_azure_rtos.h"
 
+#include <stm32f4xx_hal.h>
+#include <stm32f4xx_hal_gpio.h>
+#include <stm32f4xx_hal_tim.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -16,13 +20,15 @@
 #define VER_SW_MINOR 0
 #define VER_SN "12345678"
 
-#define SL_GUI_STACK_SIZE 1024
-#define SL_WORKER_STACK_SIZE 512
-#define SL_INPUT_STACK_SIZE 512
+#define TH_GUI_STACK_SIZE 1024
+#define TH_EFFECT_STACK_SIZE 512
+#define TH_INPUT_STACK_SIZE 512
 
-#define SL_GUI_QUEUE_SIZE 32
-#define SL_WORKER_QUEUE_SIZE 32
-#define SL_INPUT_QUEUE_SIZE 32
+#define TH_GUI_QUEUE_SIZE 32
+#define TH_EFFECT_QUEUE_SIZE 32
+#define TH_INPUT_QUEUE_SIZE 32
+
+#define TH_IDLE_TIMEOUT 50 /* tick */
 
 #define GUI_SCREEN_WIDTH 128
 #define GUI_SCREEN_HEIGHT 64
@@ -75,6 +81,8 @@
 #define GUI_MSG_STAGE(gui_msg) (((uint32_t)gui_msg >> 8) & 0xFF)
 #define GUI_MSG_MSG(gui_msg) ((uint32_t)gui_msg & 0xFFU)
 
+#define EFFECT_MSG_STAGE(effect_msg) ((uint32_t)effect_msg & 0xFFU)
+
 typedef enum
 {
     BTN_MENU,
@@ -100,7 +108,9 @@ typedef enum
     MAIN_CCT_DRIFT,
     MAIN_FIRE,
     MAIN_INDEP,
+    MAIN_IDLE,
     MAIN_END,
+    STAGE_EMPTY = 0x7FFFU,
 } MainStage;
 
 /* GuiStage extends MainStage */
@@ -155,16 +165,21 @@ typedef uint32_t Msg;
 extern SPI_HandleTypeDef hspi1;
 extern TIM_HandleTypeDef htim2;
 
-/* controller */
-extern void controller(ButtonType button_type, void **gui_message, void **worker_message);
+/* hal*/
+extern void hal_tmr_init();
+extern void hal_uart_dma_init();
+extern inline void hal_uart_dma_send(uint8_t *tx_buffer, uint16_t tx_len);
 
-/* handler */
+/* thread */
 extern void entry(TX_BYTE_POOL tx_app_byte_pool);
 extern void gui_refresh(uint16_t stage, GuiMsg msg);
 
 extern TX_QUEUE qu_input;
 extern GPIO_PinState last_sw2;
 extern ULONG last_sw2_tick;
+
+/* controller */
+extern void controller(ButtonType button_type, void **gui_message, void **worker_message);
 
 /* worker */
 extern void worker_init();

@@ -10,7 +10,7 @@ void worker_init()
     worker_locktime_init();
 }
 
-uint16_t worker_get_stage()
+inline uint16_t worker_get_stage()
 {
     return worker_stage;
 }

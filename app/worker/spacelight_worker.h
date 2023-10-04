@@ -10,7 +10,7 @@ typedef enum
     DECREASE,
 } GenericAction;
 
-extern uint16_t worker_get_stage();
+extern inline uint16_t worker_get_stage();
 extern uint16_t worker_get(SlParaName name);
 extern uint16_t worker_get_new(SlParaName name);
 extern uint16_t worker_get_min(SlParaName name);

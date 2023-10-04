@@ -116,15 +116,15 @@ void gui_text(u8g2_t *u8g2, Rect *pos, const char *str)
 
 void gui_init()
 {
-#define SL_CONTRAST 1
+#define GUI_CONTRAST 1
 
     u8g2_Setup_ssd1309_128x64_noname0_f(&u8g2, U8G2_R2, u8x8_byte_4wire_hw_spi,
                                         u8x8_stm32_gpio_and_delay);
-    u8g2_InitDisplay(&u8g2);     // send init sequence to the display, display is in
-                                 // sleep mode after this,
-    u8g2_SetPowerSave(&u8g2, 0); // wake up display
+    u8g2_InitDisplay(&u8g2);     /* send init sequence to the display, display is in
+                                    sleep mode after this */
+    u8g2_SetPowerSave(&u8g2, 0); /* wake up display */
 
-    u8g2_SetContrast(&u8g2, SL_CONTRAST);
+    u8g2_SetContrast(&u8g2, GUI_CONTRAST);
 
     u8g2_ClearDisplay(&u8g2);
 
