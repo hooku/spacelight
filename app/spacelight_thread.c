@@ -49,14 +49,13 @@ void thread_effect(ULONG param)
  */
 void thread_controller(ULONG param)
 {
-    ButtonType button_type;
+    ButtonType button_type = BTN_BACK;
     void *gui_message = NULL,
          *worker_message = NULL;
     UINT status;
 
     // draw initial GUI
-    controller(BTN_BACK, &gui_message, worker_message);
-    gui_refresh(*(uint16_t *)gui_message, MSG_NONE);
+    tx_queue_send(&qu_input, &button_type);
 
     while (1)
     {
